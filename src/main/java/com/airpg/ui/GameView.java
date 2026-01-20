@@ -7,9 +7,12 @@ import com.airpg.services.GameEngine;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -17,6 +20,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
+
+import java.util.List;
 
 /**
  * Main Vaadin UI view for the AI RPG game.
@@ -32,11 +37,30 @@ public class GameView extends VerticalLayout {
     private final TextArea storyArea;
     private final TextField inputField;
     private final Button submitButton;
+    private final ComboBox<String> actionDropdown;
+    private final Button newGameButton;
     
     // Side panels
     private final VerticalLayout statsPanel;
     private final VerticalLayout teamPanel;
     private final VerticalLayout questPanel;
+    
+    // Game state tracking
+    private boolean gameStarted = false;
+    
+    // Available quick actions
+    private static final List<String> QUICK_ACTIONS = List.of(
+            "Look around",
+            "Check inventory",
+            "Talk to nearby NPC",
+            "Explore the area",
+            "Rest and recover",
+            "Check quest log",
+            "Attack enemy",
+            "Defend",
+            "Use healing potion",
+            "Cast spell"
+    );
     
     public GameView() {
         // Configure main layout
@@ -60,12 +84,33 @@ public class GameView extends VerticalLayout {
         storyArea.setReadOnly(true);
         storyArea.setValue("Welcome to AI RPG Vibe!\n\nClick 'New Game' to start your adventure.");
         
+        // Action dropdown with free text support
+        actionDropdown = new ComboBox<>("Quick Actions");
+        actionDropdown.setItems(QUICK_ACTIONS);
+        actionDropdown.setPlaceholder("Select action or type custom...");
+        actionDropdown.setAllowCustomValue(true);
+        actionDropdown.setWidthFull();
+        actionDropdown.addCustomValueSetListener(e -> {
+            String customValue = e.getDetail();
+            if (customValue != null && !customValue.trim().isEmpty()) {
+                handlePlayerAction(customValue.trim());
+                actionDropdown.clear();
+            }
+        });
+        actionDropdown.addValueChangeListener(e -> {
+            if (e.getValue() != null && e.isFromClient()) {
+                handlePlayerAction(e.getValue());
+                actionDropdown.clear();
+            }
+        });
+        
         // Input area
         HorizontalLayout inputLayout = new HorizontalLayout();
         inputLayout.setWidthFull();
+        inputLayout.setAlignItems(FlexComponent.Alignment.END);
         
-        inputField = new TextField();
-        inputField.setPlaceholder("Enter your action...");
+        inputField = new TextField("Custom Action");
+        inputField.setPlaceholder("Or type your own action...");
         inputField.setWidthFull();
         inputField.addKeyPressListener(Key.ENTER, e -> handlePlayerInput());
         
@@ -76,10 +121,10 @@ public class GameView extends VerticalLayout {
         inputLayout.setFlexGrow(1, inputField);
         
         // New Game button
-        Button newGameButton = new Button("New Game", e -> showNewGameDialog());
+        newGameButton = new Button("New Game", e -> showNewGameDialog());
         newGameButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         
-        mainContent.add(storyArea, inputLayout, newGameButton);
+        mainContent.add(storyArea, actionDropdown, inputLayout, newGameButton);
         
         // Right sidebar (stats, team, quests)
         VerticalLayout sidebar = new VerticalLayout();
@@ -123,6 +168,9 @@ public class GameView extends VerticalLayout {
         contentLayout.setFlexGrow(1, sidebar);
         
         add(contentLayout);
+        
+        // Disable game controls until game starts
+        setGameControlsEnabled(false);
     }
     
     /**
@@ -134,46 +182,165 @@ public class GameView extends VerticalLayout {
     }
     
     /**
-     * Show dialog for creating a new game
+     * Enable or disable game controls based on game state
      */
-    private void showNewGameDialog() {
-        // Simplified: Start game with default values
-        // In a full implementation, you'd show a dialog for name/class selection
-        String heroName = "Adventurer";
-        String heroClass = "Warrior";
-        
-        String gameStart = gameEngine.startNewGame(heroName, heroClass);
-        appendToStory("\n" + "=".repeat(50) + "\n");
-        appendToStory("NEW GAME STARTED\n");
-        appendToStory("=".repeat(50) + "\n\n");
-        appendToStory(gameStart);
-        
-        updateSidePanels();
+    private void setGameControlsEnabled(boolean enabled) {
+        inputField.setEnabled(enabled);
+        submitButton.setEnabled(enabled);
+        actionDropdown.setEnabled(enabled);
+        gameStarted = enabled;
     }
     
     /**
-     * Handle player input submission
+     * Show dialog for creating a new game with hero name and class selection
      */
-    private void handlePlayerInput() {
-        String input = inputField.getValue().trim();
+    private void showNewGameDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Create Your Hero");
+        dialog.setCloseOnOutsideClick(false);
+        dialog.setCloseOnEsc(false);
+        dialog.setWidth("400px");
         
-        if (input.isEmpty()) {
+        VerticalLayout dialogContent = new VerticalLayout();
+        dialogContent.setPadding(false);
+        dialogContent.setSpacing(true);
+        
+        // Hero name input
+        TextField nameField = new TextField("Hero Name");
+        nameField.setWidthFull();
+        nameField.setPlaceholder("Enter your hero's name...");
+        nameField.setRequired(true);
+        nameField.setRequiredIndicatorVisible(true);
+        nameField.focus();
+        
+        // Class selection
+        ComboBox<String> classSelect = new ComboBox<>("Character Class");
+        classSelect.setItems("Warrior", "Mage", "Rogue", "Ranger", "Cleric");
+        classSelect.setValue("Warrior");
+        classSelect.setWidthFull();
+        classSelect.setRequired(true);
+        
+        // Class descriptions
+        Paragraph classDescription = new Paragraph("Warrior: Strong melee fighter with high health");
+        classSelect.addValueChangeListener(e -> {
+            String description = switch (e.getValue()) {
+                case "Warrior" -> "Warrior: Strong melee fighter with high health";
+                case "Mage" -> "Mage: Powerful spellcaster with high intelligence";
+                case "Rogue" -> "Rogue: Agile fighter skilled in stealth and critical hits";
+                case "Ranger" -> "Ranger: Balanced fighter with ranged combat abilities";
+                case "Cleric" -> "Cleric: Support class with healing and protection spells";
+                default -> "";
+            };
+            classDescription.setText(description);
+        });
+        
+        dialogContent.add(nameField, classSelect, classDescription);
+        dialog.add(dialogContent);
+        
+        // Start button
+        Button startButton = new Button("Begin Adventure", e -> {
+            String heroName = nameField.getValue().trim();
+            String heroClass = classSelect.getValue();
+            
+            if (heroName.isEmpty()) {
+                nameField.setInvalid(true);
+                nameField.setErrorMessage("Please enter a name for your hero");
+                return;
+            }
+            
+            if (heroClass == null || heroClass.isEmpty()) {
+                classSelect.setInvalid(true);
+                classSelect.setErrorMessage("Please select a class");
+                return;
+            }
+            
+            dialog.close();
+            startGame(heroName, heroClass);
+        });
+        startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        
+        // Cancel button
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        
+        // Allow Enter key to start game
+        nameField.addKeyPressListener(Key.ENTER, e -> startButton.click());
+        
+        dialog.getFooter().add(cancelButton, startButton);
+        dialog.open();
+    }
+    
+    /**
+     * Start a new game with the given hero details
+     */
+    private void startGame(String heroName, String heroClass) {
+        // Clear previous story
+        storyArea.setValue("");
+        
+        // Start the game
+        String gameStart = gameEngine.startNewGame(heroName, heroClass);
+        appendToStory("=".repeat(50) + "\n");
+        appendToStory("NEW GAME STARTED\n");
+        appendToStory(String.format("Hero: %s the %s\n", heroName, heroClass));
+        appendToStory("=".repeat(50) + "\n\n");
+        appendToStory(gameStart);
+        
+        // Enable game controls
+        setGameControlsEnabled(true);
+        
+        // Update side panels
+        updateSidePanels();
+        
+        // Focus on input
+        inputField.focus();
+    }
+    
+    /**
+     * Handle player action from dropdown selection
+     */
+    private void handlePlayerAction(String action) {
+        if (!gameStarted || action == null || action.isEmpty()) {
             return;
         }
         
         // Show player input
-        appendToStory("\n> " + input + "\n\n");
+        appendToStory("\n> " + action + "\n\n");
+        
+        // Show "thinking" indicator
+        appendToStory("...\n");
         
         // Process input through game engine
-        String response = gameEngine.processPlayerInput(input);
-        appendToStory(response + "\n");
+        String response = gameEngine.processPlayerInput(action);
         
-        // Clear input field
-        inputField.clear();
-        inputField.focus();
+        // Remove "thinking" indicator and add response
+        String currentText = storyArea.getValue();
+        currentText = currentText.substring(0, currentText.length() - 4); // Remove "...\n"
+        storyArea.setValue(currentText + response + "\n");
+        
+        // Scroll to bottom
+        scrollToBottom();
         
         // Update side panels
         updateSidePanels();
+        
+        // Focus on input
+        inputField.focus();
+    }
+    
+    /**
+     * Handle player input from text field submission
+     */
+    private void handlePlayerInput() {
+        String input = inputField.getValue().trim();
+        
+        if (input.isEmpty() || !gameStarted) {
+            return;
+        }
+        
+        // Clear input field first
+        inputField.clear();
+        
+        // Process the action
+        handlePlayerAction(input);
     }
     
     /**
@@ -182,12 +349,24 @@ public class GameView extends VerticalLayout {
     private void appendToStory(String text) {
         String currentText = storyArea.getValue();
         storyArea.setValue(currentText + text);
-        
-        // Auto-scroll to bottom (workaround for Vaadin)
-        getUI().ifPresent(ui -> ui.getPage().executeJs(
-                "arguments[0].scrollTop = arguments[0].scrollHeight",
-                storyArea.getElement()
-        ));
+        scrollToBottom();
+    }
+    
+    /**
+     * Scroll the story area to the bottom
+     * Uses Shadow DOM-aware JavaScript for Vaadin TextArea
+     */
+    private void scrollToBottom() {
+        storyArea.getElement().executeJs(
+                "setTimeout(() => { " +
+                "  if (this.inputElement) { " +
+                "    this.inputElement.scrollTop = this.inputElement.scrollHeight; " +
+                "  } else if (this.shadowRoot) { " +
+                "    const textarea = this.shadowRoot.querySelector('textarea'); " +
+                "    if (textarea) textarea.scrollTop = textarea.scrollHeight; " +
+                "  } " +
+                "}, 50)"
+        );
     }
     
     /**
