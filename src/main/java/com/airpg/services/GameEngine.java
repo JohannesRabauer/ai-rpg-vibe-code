@@ -80,6 +80,53 @@ public class GameEngine {
     }
     
     /**
+     * Process player input/action with streaming support
+     */
+    public void processPlayerInputStreaming(String input, StreamingResponseHandler handler) {
+        if (gameState == null || gameState.getStatus() == GameState.GameStatus.NOT_STARTED) {
+            handler.onToken("No active game. Please start a new game first.");
+            return;
+        }
+        
+        if (gameState.getStatus() != GameState.GameStatus.IN_PROGRESS) {
+            handler.onToken("Game has ended. Start a new game to continue.");
+            return;
+        }
+        
+        String trimmedInput = input.trim().toLowerCase();
+        
+        // Command handling - non-streaming commands return immediately
+        if (trimmedInput.equals("help")) {
+            handler.onToken(getHelpText());
+            return;
+        } else if (trimmedInput.equals("stats")) {
+            handler.onToken(getStatsDisplay());
+            return;
+        } else if (trimmedInput.equals("quests")) {
+            handler.onToken(getQuestsDisplay());
+            return;
+        } else if (trimmedInput.equals("team")) {
+            handler.onToken(getTeamDisplay());
+            return;
+        } else if (trimmedInput.equals("location")) {
+            worldService.describeLocationStreaming(gameState, handler);
+            return;
+        } else if (trimmedInput.startsWith("talk ")) {
+            handler.onToken(handleTalkCommand(trimmedInput.substring(5)));
+            return;
+        } else if (trimmedInput.equals("combat test")) {
+            handler.onToken(handleTestCombat());
+            return;
+        } else if (gameState.isInCombat()) {
+            handler.onToken(handleCombatInput(trimmedInput));
+            return;
+        } else {
+            // General action processing - use streaming
+            worldService.processPlayerActionStreaming(gameState, input, handler);
+        }
+    }
+    
+    /**
      * Process player input/action
      */
     public String processPlayerInput(String input) {
