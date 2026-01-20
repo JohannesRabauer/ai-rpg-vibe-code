@@ -16,18 +16,12 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: ai-rpg-vibe-linux
-            script_ext: 'sh'
-            archive_cmd: 'tar -czf'
             archive_name: 'ai-rpg-vibe-linux.tar.gz'
           - os: windows-latest
             artifact_name: ai-rpg-vibe-windows
-            script_ext: 'bat'
-            archive_cmd: 'Compress-Archive -Path'
             archive_name: 'ai-rpg-vibe-windows.zip'
           - os: macos-latest
             artifact_name: ai-rpg-vibe-macos
-            script_ext: 'sh'
-            archive_cmd: 'tar -czf'
             archive_name: 'ai-rpg-vibe-macos.tar.gz'
 
     steps:
@@ -50,7 +44,7 @@ jobs:
       - name: Copy JAR to distribution
         shell: bash
         run: |
-          cp target/ai-rpg-vibe-1.0.0-SNAPSHOT-runner.jar dist/ai-rpg-vibe/
+          cp target/*-runner.jar dist/ai-rpg-vibe/app.jar
 
       - name: Create startup script (Unix)
         if: matrix.os != 'windows-latest'
@@ -58,7 +52,7 @@ jobs:
           cat > dist/ai-rpg-vibe/run.sh << 'EOF'
           #!/bin/bash
           cd "$(dirname "$0")"
-          java -jar ai-rpg-vibe-1.0.0-SNAPSHOT-runner.jar
+          java -jar app.jar
           EOF
           chmod +x dist/ai-rpg-vibe/run.sh
 
@@ -68,7 +62,7 @@ jobs:
           @"
           @echo off
           cd /d "%~dp0"
-          java -jar ai-rpg-vibe-1.0.0-SNAPSHOT-runner.jar
+          java -jar app.jar
           "@ | Out-File -FilePath dist/ai-rpg-vibe/run.bat -Encoding ASCII
 
       - name: Create README
@@ -92,7 +86,7 @@ jobs:
             ./run.sh
             
             Or directly with java:
-            java -jar ai-rpg-vibe-1.0.0-SNAPSHOT-runner.jar
+            java -jar app.jar
           
           The application will start at: http://localhost:8080
           

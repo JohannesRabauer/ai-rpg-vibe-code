@@ -107,9 +107,9 @@ export OPENAI_API_KEY=sk-your-api-key-here
 # Development mode with live reload
 mvn quarkus:dev
 
-# Production build
+# Production build (creates uber-jar)
 mvn clean package -Puber-jar
-java -jar target/ai-rpg-vibe-1.0.0-SNAPSHOT-runner.jar
+java -jar target/*-runner.jar
 ```
 
 The application will start at: **http://localhost:8080**
