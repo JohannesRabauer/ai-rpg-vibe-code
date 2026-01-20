@@ -1,0 +1,25 @@
+# Example OpenAI Configuration
+# Copy this file to application.properties and fill in your values
+
+# AI Provider (openai or ollama)
+ai.provider=openai
+
+# OpenAI Settings
+ai.openai.api-key=sk-your-openai-api-key-here
+ai.openai.model=gpt-4o
+ai.openai.temperature=0.8
+ai.openai.max-tokens=1000
+
+# Ollama Settings (not used when provider=openai)
+ai.ollama.base-url=http://localhost:11434
+ai.ollama.model=llama3.2
+ai.ollama.temperature=0.8
+ai.ollama.max-tokens=1000
+
+# Game Configuration
+game.max-team-size=4
+game.initial-goals=Slay the Dragon of Mount Doom,Rescue Princess Elena,Stop the Necromancer's Ritual,Find the Lost Artifact
+
+# Quarkus Configuration
+quarkus.http.port=8080
+vaadin.launch-browser=true

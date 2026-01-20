@@ -1,0 +1,35 @@
+# Example Ollama Configuration (Local AI)
+# Copy this file to application.properties and adjust as needed
+
+# AI Provider (openai or ollama)
+ai.provider=ollama
+
+# OpenAI Settings (not used when provider=ollama)
+ai.openai.api-key=not-used
+ai.openai.model=gpt-4o
+ai.openai.temperature=0.8
+ai.openai.max-tokens=1000
+
+# Ollama Settings
+ai.ollama.base-url=http://localhost:11434
+ai.ollama.model=llama3.2
+ai.ollama.temperature=0.8
+ai.ollama.max-tokens=1000
+
+# Alternative Ollama Models:
+# - llama3.2 (recommended for balanced performance)
+# - llama3.1
+# - mistral
+# - codellama
+# - phi
+
+# Note: Make sure Ollama is running: ollama serve
+# And the model is pulled: ollama pull llama3.2
+
+# Game Configuration
+game.max-team-size=4
+game.initial-goals=Slay the Dragon of Mount Doom,Rescue Princess Elena,Stop the Necromancer's Ritual,Find the Lost Artifact
+
+# Quarkus Configuration
+quarkus.http.port=8080
+vaadin.launch-browser=true
