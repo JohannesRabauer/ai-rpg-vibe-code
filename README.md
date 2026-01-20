@@ -85,15 +85,31 @@ ai.ollama.model=llama3.2
 export OPENAI_API_KEY=sk-your-api-key-here
 ```
 
-### Build and Run
+### Quick Start (Pre-built Binaries)
+
+**Download the latest release for your platform:**
+1. Go to [Releases](../../releases/latest)
+2. Download the archive for your operating system:
+   - **Windows**: `ai-rpg-vibe-windows.zip`
+   - **Linux**: `ai-rpg-vibe-linux.tar.gz`
+   - **macOS**: `ai-rpg-vibe-macos.tar.gz`
+3. Extract the archive
+4. Run the startup script:
+   - **Windows**: Double-click `run.bat` or run from command line
+   - **Linux/macOS**: Run `./run.sh` in terminal
+5. Open your browser to **http://localhost:8080**
+
+**Requirements:** Java 21 or higher must be installed on your system.
+
+### Build and Run from Source
 
 ```bash
 # Development mode with live reload
 mvn quarkus:dev
 
-# Production build
-mvn clean package
-java -jar target/quarkus-app/quarkus-run.jar
+# Production build (creates uber-jar)
+mvn clean package -Puber-jar
+java -jar target/*-runner.jar
 ```
 
 The application will start at: **http://localhost:8080**
@@ -274,6 +290,24 @@ ai.ollama.temperature=0.8
 ### Contributing
 
 This is a demonstration project showcasing AI-driven game development with Quarkus and Vaadin.
+
+### Creating Releases
+
+The project uses GitHub Actions to automatically build and release executables for Windows, Linux, and macOS.
+
+**To create a new release:**
+1. Tag your commit with a version number:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+2. GitHub Actions will automatically:
+   - Build the application for all platforms
+   - Create platform-specific packages
+   - Create a GitHub release with downloadable artifacts
+
+**Manual workflow trigger:**
+You can also manually trigger the build workflow from the GitHub Actions tab without creating a tag. This is useful for testing the build process.
 
 ## 📄 License
 
