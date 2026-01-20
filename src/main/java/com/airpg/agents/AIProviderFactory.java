@@ -2,8 +2,11 @@ package com.airpg.agents;
 
 import com.airpg.config.AIConfig;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -64,6 +67,55 @@ public class AIProviderFactory {
         AIConfig.OllamaConfig config = aiConfig.ollama();
         
         return OllamaChatModel.builder()
+                .baseUrl(config.baseUrl())
+                .modelName(config.model())
+                .temperature(config.temperature())
+                .timeout(Duration.ofSeconds(120))
+                .build();
+    }
+    
+    /**
+     * Create a StreamingChatLanguageModel based on the configured provider
+     */
+    public StreamingChatLanguageModel createStreamingChatModel() {
+        String provider = aiConfig.provider().toLowerCase();
+        
+        LOG.infof("Creating AI streaming chat model for provider: %s", provider);
+        
+        return switch (provider) {
+            case "openai" -> createOpenAIStreamingChatModel();
+            case "ollama" -> createOllamaStreamingChatModel();
+            default -> {
+                LOG.warnf("Unknown AI provider '%s', falling back to OpenAI", provider);
+                yield createOpenAIStreamingChatModel();
+            }
+        };
+    }
+    
+    /**
+     * Create OpenAI streaming chat model
+     */
+    private StreamingChatLanguageModel createOpenAIStreamingChatModel() {
+        AIConfig.OpenAIConfig config = aiConfig.openai();
+        
+        return OpenAiStreamingChatModel.builder()
+                .apiKey(config.apiKey())
+                .modelName(config.model())
+                .temperature(config.temperature())
+                .maxTokens(config.maxTokens())
+                .timeout(Duration.ofSeconds(60))
+                .logRequests(false)
+                .logResponses(false)
+                .build();
+    }
+    
+    /**
+     * Create Ollama streaming chat model (local)
+     */
+    private StreamingChatLanguageModel createOllamaStreamingChatModel() {
+        AIConfig.OllamaConfig config = aiConfig.ollama();
+        
+        return OllamaStreamingChatModel.builder()
                 .baseUrl(config.baseUrl())
                 .modelName(config.model())
                 .temperature(config.temperature())

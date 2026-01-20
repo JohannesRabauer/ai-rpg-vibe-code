@@ -80,6 +80,71 @@ public class GameEngine {
     }
     
     /**
+     * Process player input/action with streaming support
+     */
+    public void processPlayerInputStreaming(String input, StreamingResponseHandler handler) {
+        if (gameState == null || gameState.getStatus() == GameState.GameStatus.NOT_STARTED) {
+            String message = "No active game. Please start a new game first.";
+            handler.onToken(message);
+            handler.onComplete(message);
+            return;
+        }
+        
+        if (gameState.getStatus() != GameState.GameStatus.IN_PROGRESS) {
+            String message = "Game has ended. Start a new game to continue.";
+            handler.onToken(message);
+            handler.onComplete(message);
+            return;
+        }
+        
+        String trimmedInput = input.trim().toLowerCase();
+        
+        // Command handling - non-streaming commands return immediately
+        if (trimmedInput.equals("help")) {
+            String response = getHelpText();
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (trimmedInput.equals("stats")) {
+            String response = getStatsDisplay();
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (trimmedInput.equals("quests")) {
+            String response = getQuestsDisplay();
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (trimmedInput.equals("team")) {
+            String response = getTeamDisplay();
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (trimmedInput.equals("location")) {
+            worldService.describeLocationStreaming(gameState, handler);
+            return;
+        } else if (trimmedInput.startsWith("talk ")) {
+            String response = handleTalkCommand(trimmedInput.substring(5));
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (trimmedInput.equals("combat test")) {
+            String response = handleTestCombat();
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else if (gameState.isInCombat()) {
+            String response = handleCombatInput(trimmedInput);
+            handler.onToken(response);
+            handler.onComplete(response);
+            return;
+        } else {
+            // General action processing - use streaming
+            worldService.processPlayerActionStreaming(gameState, input, handler);
+        }
+    }
+    
+    /**
      * Process player input/action
      */
     public String processPlayerInput(String input) {

@@ -8,6 +8,7 @@ import com.airpg.domain.TeamMember;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,6 +35,7 @@ public class AgentService {
     
     // Agent caches
     private WorldNarratorAgent worldNarratorAgent;
+    private WorldNarratorStreamingAgent worldNarratorStreamingAgent;
     private CombatNarratorAgent combatNarratorAgent;
     private final Map<String, NPCAgent> npcAgents = new ConcurrentHashMap<>();
     private final Map<String, CompanionAgent> companionAgents = new ConcurrentHashMap<>();
@@ -58,6 +60,28 @@ public class AgentService {
             LOG.info("World narrator agent created");
         }
         return worldNarratorAgent;
+    }
+    
+    /**
+     * Get or create the streaming world narrator agent
+     */
+    public WorldNarratorStreamingAgent getWorldNarratorStreaming() {
+        if (worldNarratorStreamingAgent == null) {
+            StreamingChatLanguageModel model = providerFactory.createStreamingChatModel();
+            ChatMemory memory = MessageWindowChatMemory.builder()
+                    .maxMessages(20)
+                    .chatMemoryStore(memoryStore)
+                    .id("world-narrator")
+                    .build();
+            
+            worldNarratorStreamingAgent = AiServices.builder(WorldNarratorStreamingAgent.class)
+                    .streamingChatLanguageModel(model)
+                    .chatMemory(memory)
+                    .build();
+            
+            LOG.info("Streaming world narrator agent created");
+        }
+        return worldNarratorStreamingAgent;
     }
     
     /**
@@ -132,6 +156,7 @@ public class AgentService {
     public void clearAllMemories() {
         memoryStore.clearAll();
         worldNarratorAgent = null;
+        worldNarratorStreamingAgent = null;
         combatNarratorAgent = null;
         npcAgents.clear();
         companionAgents.clear();

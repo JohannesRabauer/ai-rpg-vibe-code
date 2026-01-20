@@ -5,6 +5,7 @@ import com.airpg.domain.Hero;
 import com.airpg.domain.TeamMember;
 import com.airpg.services.GameEngine;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -18,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.communication.PushMode;
+import com.vaadin.flow.shared.ui.Transport;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 
@@ -28,6 +31,7 @@ import java.util.List;
  * Provides text-based interface for player input and game output.
  */
 @Route("")
+@com.vaadin.flow.component.page.Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET_XHR)
 public class GameView extends VerticalLayout {
     
     @Inject
@@ -302,28 +306,56 @@ public class GameView extends VerticalLayout {
             return;
         }
         
+        // Disable input during processing
+        setGameControlsEnabled(false);
+        
         // Show player input
         appendToStory("\n> " + action + "\n\n");
         
-        // Show "thinking" indicator
-        appendToStory("...\n");
-        
-        // Process input through game engine
-        String response = gameEngine.processPlayerInput(action);
-        
-        // Remove "thinking" indicator and add response
-        String currentText = storyArea.getValue();
-        currentText = currentText.substring(0, currentText.length() - 4); // Remove "...\n"
-        storyArea.setValue(currentText + response + "\n");
-        
-        // Scroll to bottom
-        scrollToBottom();
-        
-        // Update side panels
-        updateSidePanels();
-        
-        // Focus on input
-        inputField.focus();
+        // Process input through game engine with streaming
+        gameEngine.processPlayerInputStreaming(action, new com.airpg.services.StreamingResponseHandler() {
+            @Override
+            public void onToken(String token) {
+                // Update UI on UI thread with each token
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory(token);
+                        ui.push();
+                    });
+                }
+            }
+            
+            @Override
+            public void onComplete(String fullResponse) {
+                // Re-enable controls and update UI when streaming is complete
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
+            }
+            
+            @Override
+            public void onError(Throwable error) {
+                // Handle error and re-enable controls
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n[Error: " + error.getMessage() + "]\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
+            }
+        });
     }
     
     /**
