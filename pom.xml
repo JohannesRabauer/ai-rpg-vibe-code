@@ -175,6 +175,17 @@
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
         </profile>
+        <profile>
+            <id>uber-jar</id>
+            <activation>
+                <property>
+                    <name>uber-jar</name>
+                </property>
+            </activation>
+            <properties>
+                <quarkus.package.type>uber-jar</quarkus.package.type>
+            </properties>
+        </profile>
     </profiles>
 
 </project>
