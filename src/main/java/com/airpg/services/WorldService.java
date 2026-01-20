@@ -145,8 +145,14 @@ public class WorldService {
         TokenStream tokenStream = narrator.respondToAction(context);
         tokenStream
                 .onNext(handler::onToken)
-                .onComplete(response -> LOG.debugf("Player action streaming completed: %s", playerAction))
-                .onError(error -> LOG.errorf(error, "Error during streaming response"))
+                .onComplete(response -> {
+                    LOG.debugf("Player action streaming completed: %s", playerAction);
+                    handler.onComplete(response.content().text());
+                })
+                .onError(error -> {
+                    LOG.errorf(error, "Error during streaming response");
+                    handler.onError(error);
+                })
                 .start();
     }
     
@@ -170,8 +176,14 @@ public class WorldService {
         TokenStream tokenStream = narrator.narrateScene(context);
         tokenStream
                 .onNext(handler::onToken)
-                .onComplete(response -> LOG.debugf("Opening scene streaming completed for hero: %s", gameState.getHero().getName()))
-                .onError(error -> LOG.errorf(error, "Error during opening scene streaming"))
+                .onComplete(response -> {
+                    LOG.debugf("Opening scene streaming completed for hero: %s", gameState.getHero().getName());
+                    handler.onComplete(response.content().text());
+                })
+                .onError(error -> {
+                    LOG.errorf(error, "Error during opening scene streaming");
+                    handler.onError(error);
+                })
                 .start();
     }
     
@@ -199,8 +211,14 @@ public class WorldService {
         TokenStream tokenStream = narrator.describeLocation(context);
         tokenStream
                 .onNext(handler::onToken)
-                .onComplete(response -> LOG.debugf("Location description streaming completed"))
-                .onError(error -> LOG.errorf(error, "Error during location description streaming"))
+                .onComplete(response -> {
+                    LOG.debugf("Location description streaming completed");
+                    handler.onComplete(response.content().text());
+                })
+                .onError(error -> {
+                    LOG.errorf(error, "Error during location description streaming");
+                    handler.onError(error);
+                })
                 .start();
     }
     

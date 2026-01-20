@@ -313,28 +313,49 @@ public class GameView extends VerticalLayout {
         appendToStory("\n> " + action + "\n\n");
         
         // Process input through game engine with streaming
-        gameEngine.processPlayerInputStreaming(action, token -> {
-            // Update UI on UI thread
-            UI ui = getUI().orElse(null);
-            if (ui != null) {
-                ui.access(() -> {
-                    appendToStory(token);
-                    ui.push();
-                });
+        gameEngine.processPlayerInputStreaming(action, new com.airpg.services.StreamingResponseHandler() {
+            @Override
+            public void onToken(String token) {
+                // Update UI on UI thread with each token
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory(token);
+                        ui.push();
+                    });
+                }
+            }
+            
+            @Override
+            public void onComplete(String fullResponse) {
+                // Re-enable controls and update UI when streaming is complete
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
+            }
+            
+            @Override
+            public void onError(Throwable error) {
+                // Handle error and re-enable controls
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n[Error: " + error.getMessage() + "]\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
             }
         });
-        
-        // Add newline after streaming completes
-        appendToStory("\n");
-        
-        // Update side panels
-        updateSidePanels();
-        
-        // Re-enable input
-        setGameControlsEnabled(true);
-        
-        // Focus on input
-        inputField.focus();
     }
     
     /**
