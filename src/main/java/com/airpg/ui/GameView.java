@@ -19,8 +19,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.shared.communication.PushMode;
-import com.vaadin.flow.shared.ui.Transport;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 
@@ -31,7 +29,6 @@ import java.util.List;
  * Provides text-based interface for player input and game output.
  */
 @Route("")
-@com.vaadin.flow.component.page.Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET_XHR)
 public class GameView extends VerticalLayout {
     
     @Inject

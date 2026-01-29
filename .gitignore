@@ -45,3 +45,4 @@ Thumbs.db
 
 # Application specific
 application-local.properties
+/.m2
