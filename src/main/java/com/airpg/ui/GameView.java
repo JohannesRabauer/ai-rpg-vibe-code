@@ -276,23 +276,57 @@ public class GameView extends VerticalLayout {
     private void startGame(String heroName, String heroClass) {
         // Clear previous story
         storyArea.setValue("");
-        
-        // Start the game
-        String gameStart = gameEngine.startNewGame(heroName, heroClass);
+
+        // Show header immediately
         appendToStory("=".repeat(50) + "\n");
         appendToStory("NEW GAME STARTED\n");
         appendToStory(String.format("Hero: %s the %s\n", heroName, heroClass));
         appendToStory("=".repeat(50) + "\n\n");
-        appendToStory(gameStart);
-        
-        // Enable game controls
-        setGameControlsEnabled(true);
-        
-        // Update side panels
-        updateSidePanels();
-        
-        // Focus on input
-        inputField.focus();
+
+        // Start the game with streaming
+        gameEngine.startNewGameStreaming(heroName, heroClass, new com.airpg.services.StreamingResponseHandler() {
+            @Override
+            public void onToken(String token) {
+                // Update UI on UI thread with each token
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory(token);
+                        ui.push();
+                    });
+                }
+            }
+
+            @Override
+            public void onComplete(String fullResponse) {
+                // Enable controls and update UI when streaming is complete
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                // Handle error and still enable controls
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        appendToStory("\n[Error starting game: " + error.getMessage() + "]\n");
+                        updateSidePanels();
+                        setGameControlsEnabled(true);
+                        inputField.focus();
+                        ui.push();
+                    });
+                }
+            }
+        });
     }
     
     /**

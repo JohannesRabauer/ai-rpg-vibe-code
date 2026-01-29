@@ -42,34 +42,34 @@ public class GameEngine {
      */
     public String startNewGame(String heroName, String heroClass) {
         gameState = new GameState();
-        
+
         // Create hero
         Hero hero = Hero.createDefault(heroName, heroClass);
-        
+
         // Select random main goal
         List<String> goals = gameConfig.initialGoals();
         String mainGoal = goals.get(random.nextInt(goals.size()));
-        
+
         // Start the game
         gameState.startGame(hero, mainGoal);
-        
+
         // Create initial NPCs
         NPC sage = npcService.createSampleNPC(gameState.getCurrentLocation());
         gameState.addNPC(sage);
-        
+
         // Generate opening scene
         String opening = worldService.generateOpeningScene(gameState);
-        
+
         LOG.infof("New game started: %s the %s - Quest: %s", heroName, heroClass, mainGoal);
-        
+
         return String.format("""
                 %s
-                
+
                 Your stats:
                 - HP: %d/%d
                 - Mana: %d/%d
                 - Strength: %d, Intelligence: %d, Agility: %d
-                
+
                 Type 'help' to see available commands.
                 """,
                 opening,
@@ -77,6 +77,63 @@ public class GameEngine {
                 hero.getCurrentMana(), hero.getMaxMana(),
                 hero.getStrength(), hero.getIntelligence(), hero.getAgility()
         );
+    }
+
+    /**
+     * Initialize a new game with streaming support for the opening scene
+     */
+    public void startNewGameStreaming(String heroName, String heroClass, StreamingResponseHandler handler) {
+        gameState = new GameState();
+
+        // Create hero
+        Hero hero = Hero.createDefault(heroName, heroClass);
+
+        // Select random main goal
+        List<String> goals = gameConfig.initialGoals();
+        String mainGoal = goals.get(random.nextInt(goals.size()));
+
+        // Start the game
+        gameState.startGame(hero, mainGoal);
+
+        // Create initial NPCs
+        NPC sage = npcService.createSampleNPC(gameState.getCurrentLocation());
+        gameState.addNPC(sage);
+
+        LOG.infof("New game started: %s the %s - Quest: %s", heroName, heroClass, mainGoal);
+
+        // Generate opening scene with streaming
+        worldService.generateOpeningSceneStreaming(gameState, new StreamingResponseHandler() {
+            @Override
+            public void onToken(String token) {
+                handler.onToken(token);
+            }
+
+            @Override
+            public void onComplete(String fullResponse) {
+                // Append stats info after the opening scene
+                String statsInfo = String.format("""
+
+
+                        Your stats:
+                        - HP: %d/%d
+                        - Mana: %d/%d
+                        - Strength: %d, Intelligence: %d, Agility: %d
+
+                        Type 'help' to see available commands.
+                        """,
+                        hero.getCurrentHealth(), hero.getMaxHealth(),
+                        hero.getCurrentMana(), hero.getMaxMana(),
+                        hero.getStrength(), hero.getIntelligence(), hero.getAgility()
+                );
+                handler.onToken(statsInfo);
+                handler.onComplete(fullResponse + statsInfo);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                handler.onError(error);
+            }
+        });
     }
     
     /**
