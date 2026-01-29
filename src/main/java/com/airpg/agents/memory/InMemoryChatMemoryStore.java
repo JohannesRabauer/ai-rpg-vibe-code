@@ -46,4 +46,25 @@ public class InMemoryChatMemoryStore implements ChatMemoryStore {
     public int getConversationCount() {
         return messagesByMemoryId.size();
     }
+
+    /**
+     * Get all memories as a map for persistence
+     */
+    public Map<Object, List<ChatMessage>> getAllMemories() {
+        Map<Object, List<ChatMessage>> copy = new ConcurrentHashMap<>();
+        for (Map.Entry<Object, List<ChatMessage>> entry : messagesByMemoryId.entrySet()) {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+        return copy;
+    }
+
+    /**
+     * Restore memories from a map (e.g., loaded from database)
+     */
+    public void restoreMemories(Map<Object, List<ChatMessage>> memories) {
+        messagesByMemoryId.clear();
+        for (Map.Entry<Object, List<ChatMessage>> entry : memories.entrySet()) {
+            messagesByMemoryId.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+    }
 }

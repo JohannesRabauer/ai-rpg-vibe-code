@@ -5,6 +5,7 @@ import com.airpg.domain.GameCharacter;
 import com.airpg.domain.CombatAction;
 import com.airpg.domain.NPC;
 import com.airpg.domain.TeamMember;
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -161,5 +162,27 @@ public class AgentService {
         npcAgents.clear();
         companionAgents.clear();
         LOG.info("All agent memories cleared");
+    }
+
+    /**
+     * Export all agent memories for persistence
+     */
+    public Map<Object, List<ChatMessage>> exportMemories() {
+        return memoryStore.getAllMemories();
+    }
+
+    /**
+     * Import agent memories from persistence (e.g., after loading a game)
+     * This also clears cached agents so they get recreated with restored memory
+     */
+    public void importMemories(Map<Object, List<ChatMessage>> memories) {
+        memoryStore.restoreMemories(memories);
+        // Clear cached agents so they get recreated with the restored memory
+        worldNarratorAgent = null;
+        worldNarratorStreamingAgent = null;
+        combatNarratorAgent = null;
+        npcAgents.clear();
+        companionAgents.clear();
+        LOG.infof("Imported %d agent memories", memories.size());
     }
 }

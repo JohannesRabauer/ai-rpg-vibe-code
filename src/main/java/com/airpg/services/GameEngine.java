@@ -1,12 +1,15 @@
 package com.airpg.services;
 
+import com.airpg.agents.AgentService;
 import com.airpg.config.GameConfig;
 import com.airpg.domain.*;
+import dev.langchain4j.data.message.ChatMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -34,7 +37,13 @@ public class GameEngine {
     
     @Inject
     CombatService combatService;
-    
+
+    @Inject
+    GamePersistenceService persistenceService;
+
+    @Inject
+    AgentService agentService;
+
     private GameState gameState;
     
     /**
@@ -413,5 +422,79 @@ public class GameEngine {
      */
     public GameState getGameState() {
         return gameState;
+    }
+
+    /**
+     * Save the current game
+     *
+     * @param saveName Display name for the save
+     * @return Result of the save operation
+     */
+    public GamePersistenceService.SaveResult saveGame(String saveName) {
+        if (gameState == null) {
+            return new GamePersistenceService.SaveResult(false, "No active game to save", null);
+        }
+
+        if (gameState.isInCombat()) {
+            return new GamePersistenceService.SaveResult(false, "Cannot save during combat", null);
+        }
+
+        // Save game state
+        GamePersistenceService.SaveResult result = persistenceService.saveGame(gameState, saveName);
+
+        // If successful, also save agent memories
+        if (result.success() && result.saveId() != null) {
+            Map<Object, List<ChatMessage>> memories = agentService.exportMemories();
+            persistenceService.saveAgentMemories(result.saveId(), memories);
+            LOG.infof("Game saved with %d agent memories", memories.size());
+        }
+
+        return result;
+    }
+
+    /**
+     * Load a saved game
+     *
+     * @param saveId The ID of the save to load
+     * @return true if loaded successfully
+     */
+    public boolean loadGame(Long saveId) {
+        // Load game state
+        GameState loadedState = persistenceService.loadGame(saveId);
+        if (loadedState == null) {
+            LOG.warnf("Failed to load game: %d", saveId);
+            return false;
+        }
+
+        // Load and restore agent memories
+        Map<Object, List<ChatMessage>> memories = persistenceService.loadAgentMemories(saveId);
+        agentService.importMemories(memories);
+
+        // Set the loaded state as current
+        this.gameState = loadedState;
+
+        LOG.infof("Game loaded successfully: %d with %d agent memories", saveId, memories.size());
+        return true;
+    }
+
+    /**
+     * Get list of available saves
+     */
+    public List<GamePersistenceService.SaveMetadata> listSaves() {
+        return persistenceService.listSaves();
+    }
+
+    /**
+     * Delete a saved game
+     */
+    public void deleteSave(Long saveId) {
+        persistenceService.deleteSave(saveId);
+    }
+
+    /**
+     * Check if game is in combat (for UI to disable save button)
+     */
+    public boolean isInCombat() {
+        return gameState != null && gameState.isInCombat();
     }
 }

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(mvn compile:*)",
       "Bash(curl:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(mvn quarkus:dev:*)"
     ]
   }
 }

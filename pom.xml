@@ -25,6 +25,10 @@
         
         <compiler-plugin.version>3.13.0</compiler-plugin.version>
         <surefire-plugin.version>3.5.2</surefire-plugin.version>
+
+        <!-- Persistence -->
+        <jooq.version>3.19.3</jooq.version>
+        <h2.version>2.2.224</h2.version>
     </properties>
 
     <dependencyManagement>
@@ -103,6 +107,32 @@
             <version>5.15.0</version>
         </dependency>
 
+        <!-- Quarkus H2 JDBC -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-h2</artifactId>
+        </dependency>
+
+        <!-- Quarkus Flyway -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-flyway</artifactId>
+        </dependency>
+
+        <!-- jOOQ -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <!-- H2 Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -156,6 +186,107 @@
                         <goals>
                             <goal>prepare-frontend</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Flyway Maven Plugin - runs migrations for jOOQ codegen -->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>10.8.1</version>
+                <executions>
+                    <execution>
+                        <id>flyway-migrate</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <url>jdbc:h2:file:${project.build.directory}/jooq-codegen-db;MODE=PostgreSQL</url>
+                    <user>sa</user>
+                    <password></password>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- jOOQ Code Generation Plugin -->
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+                <executions>
+                    <execution>
+                        <id>jooq-codegen</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbc>
+                        <driver>org.h2.Driver</driver>
+                        <url>jdbc:h2:file:${project.build.directory}/jooq-codegen-db;MODE=PostgreSQL</url>
+                        <user>sa</user>
+                        <password></password>
+                    </jdbc>
+                    <generator>
+                        <name>org.jooq.codegen.JavaGenerator</name>
+                        <database>
+                            <name>org.jooq.meta.h2.H2Database</name>
+                            <inputSchema>PUBLIC</inputSchema>
+                            <includes>.*</includes>
+                            <excludes>FLYWAY_SCHEMA_HISTORY</excludes>
+                        </database>
+                        <target>
+                            <packageName>com.airpg.persistence.jooq</packageName>
+                            <directory>target/generated-sources/jooq</directory>
+                        </target>
+                        <generate>
+                            <records>true</records>
+                            <daos>false</daos>
+                            <pojos>false</pojos>
+                        </generate>
+                    </generator>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Add generated sources to compile path -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>add-jooq-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/jooq</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
