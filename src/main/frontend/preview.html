@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI RPG Vibe - UI Preview</title>
+    <link rel="stylesheet" href="../themes/rpgvibe/game-ui.css">
+    <style>
+        /* Simulate Vaadin components for preview */
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 1rem 0 1.5rem 0;
+            background: linear-gradient(120deg, #f4a261 30%, #2a9d8f 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 8px rgba(244, 162, 97, 0.25));
+        }
+        
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            min-height: 600px;
+        }
+        
+        .content-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .story-box {
+            background: linear-gradient(to bottom, #1a1d26, #16181f);
+            border: 1.5px solid #3a3d4a;
+            border-radius: 10px;
+            box-shadow: 
+                inset 0 2px 12px rgba(0, 0, 0, 0.6),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: #f8f4e6;
+            padding: 18px 22px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .text-input {
+            flex: 1;
+            background: #21242e;
+            border: 1.5px solid #3a3d4a;
+            border-radius: 6px;
+            color: #f8f4e6;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #f4a261;
+            box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.15);
+            transform: scale(1.01);
+        }
+        
+        .btn {
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 0.85rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e76f51, #f4a261);
+            color: #13151c;
+            box-shadow: 0 3px 12px rgba(231, 111, 81, 0.35);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 5px 18px rgba(231, 111, 81, 0.5);
+        }
+        
+        .btn-contrast {
+            background: transparent;
+            border: 2px solid #2a9d8f;
+            color: #2a9d8f;
+        }
+        
+        .btn-contrast:hover {
+            background: #2a9d8f;
+            color: #13151c;
+            box-shadow: 0 0 16px rgba(42, 157, 143, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #2a9d8f, #1d7a6f);
+            color: white;
+        }
+        
+        .panel {
+            background: 
+                linear-gradient(135deg, rgba(33, 36, 46, 0.95), rgba(26, 29, 38, 0.98)),
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(244, 162, 97, 0.02) 10px, rgba(244, 162, 97, 0.02) 20px);
+            border: 1.5px solid #3a3d4a;
+            border-radius: 12px;
+            box-shadow: 
+                0 6px 24px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(248, 244, 230, 0.03);
+            padding: 16px 20px;
+        }
+        
+        .panel h3 {
+            color: #f4a261;
+            font-size: 1.05rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            border-bottom: 2px solid #3a3d4a;
+            padding-bottom: 0.6rem;
+            margin: 0 0 1.2rem 0;
+        }
+        
+        .panel p {
+            color: #f8f4e6;
+            font-size: 0.92rem;
+            margin: 0.35rem 0;
+            line-height: 1.55;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            margin: 0.5rem 0;
+            color: #f8f4e6;
+        }
+        
+        .label {
+            color: #2a9d8f;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">AI RPG Vibe - Fantasy Adventure</h1>
+        
+        <div class="main-layout">
+            <div class="content-area">
+                <div>
+                    <span class="label">Story</span>
+                    <div class="story-box">
+                        Welcome to AI RPG Vibe!
+                        
+                        You find yourself standing at the edge of a mystical forest. The ancient trees tower above you, their branches intertwining to form a natural canopy that filters the sunlight into dancing patterns on the forest floor.
+                        
+                        A gentle breeze carries the scent of wildflowers and something else... magic perhaps? In the distance, you hear the faint sound of running water and the occasional bird call.
+                        
+                        Your adventure begins here, brave traveler. What will you do?
+                        
+                        > Look around
+                        
+                        As you survey your surroundings more carefully, you notice:
+                        - A worn path leading deeper into the forest
+                        - Strange glowing mushrooms near the base of an oak tree
+                        - The glint of something metallic partially hidden in the underbrush
+                        - Carved symbols on some of the tree trunks
+                        
+                        The forest seems alive with possibility and mystery.
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="label">Quick Actions</span>
+                    <select class="text-input" style="width: 100%;">
+                        <option>Select action or type custom...</option>
+                        <option>Look around</option>
+                        <option>Check inventory</option>
+                        <option>Talk to nearby NPC</option>
+                        <option>Explore the area</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <div style="flex: 1;">
+                        <span class="label">Custom Action</span>
+                        <input type="text" class="text-input" placeholder="Or type your own action..." />
+                    </div>
+                    <button class="btn btn-primary">Submit</button>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-contrast">New Game</button>
+                    <button class="btn btn-success">Save Game</button>
+                    <button class="btn" style="background: #21242e; border: 1px solid #3a3d4a; color: #b0a899;">Load Game</button>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="panel">
+                    <h3>Hero Stats</h3>
+                    <p class="stat-item">Name: Eldrin</p>
+                    <p class="stat-item">Class: Warrior</p>
+                    <p class="stat-item">Level: 5</p>
+                    <p class="stat-item">HP: 85/100</p>
+                    <p class="stat-item">Mana: 30/50</p>
+                    <p class="stat-item">STR: 16</p>
+                    <p class="stat-item">INT: 12</p>
+                    <p class="stat-item">AGI: 14</p>
+                    <p class="stat-item">XP: 1250</p>
+                </div>
+                
+                <div class="panel">
+                    <h3>Party Members</h3>
+                    <div style="margin-bottom: 12px;">
+                        <p style="margin: 0;">• Lyra (Mage)</p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #b0a899;">  HP: 45/60</p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #b0a899;">  Loyalty: 85/100</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0;">• Thorne (Ranger)</p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #b0a899;">  HP: 70/75</p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #b0a899;">  Loyalty: 92/100</p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>Active Quests</h3>
+                    <p>Main: Discover the source of the ancient magic</p>
+                    <p style="margin-top: 12px; font-size: 0.95rem; color: #f4a261;">Side Quests:</p>
+                    <p>• Find the lost amulet</p>
+                    <p>• Help the village elder</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
