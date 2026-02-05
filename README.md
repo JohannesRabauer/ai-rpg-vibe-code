@@ -61,6 +61,7 @@ src/main/java/com/airpg/
 - **Maven 3.8+**
 - **Node.js** (for Vaadin frontend build)
 - **OpenAI API key** OR **Ollama** installed locally
+- **Docker** (optional, for running Ollama via Docker Compose)
 
 ### Configuration
 
@@ -79,6 +80,25 @@ ai.provider=ollama
 ai.ollama.base-url=http://localhost:11434
 ai.ollama.model=llama3.2
 ```
+
+### Running Ollama with Docker Compose
+
+The easiest way to run Ollama locally is using Docker Compose:
+
+```bash
+# Start Ollama container (will automatically pull llama3.2 model)
+docker compose up -d
+
+# Check if the model is ready (first run downloads ~2GB, may take several minutes)
+docker compose logs -f ollama-pull
+
+# Stop Ollama
+docker compose down
+```
+
+**Note:** The first startup downloads the llama3.2 model (~2GB). This may take several minutes depending on your internet connection. Monitor progress with `docker compose logs -f ollama-pull`.
+
+**GPU Support (NVIDIA):** Edit `docker-compose.yml` and uncomment the GPU configuration section.
 
 2. **Set environment variable** (recommended for OpenAI):
 ```bash
