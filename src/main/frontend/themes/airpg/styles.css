@@ -1,0 +1,465 @@
+/* AI RPG Vibe - Enhanced Fantasy Theme */
+
+/* === Root Variables for Theming === */
+:root {
+    /* Fantasy Color Palette */
+    --airpg-primary: #8b4513;
+    --airpg-primary-dark: #6b3410;
+    --airpg-primary-light: #a0522d;
+    --airpg-secondary: #4a5d23;
+    --airpg-accent: #d4af37;
+    --airpg-accent-glow: #ffd700;
+    
+    /* Background & Surfaces */
+    --airpg-bg-main: #1a1410;
+    --airpg-bg-surface: #2d2419;
+    --airpg-bg-panel: #3a2f1f;
+    --airpg-bg-elevated: #4a3d2a;
+    
+    /* Text Colors */
+    --airpg-text-primary: #f5e6d3;
+    --airpg-text-secondary: #d4c4a8;
+    --airpg-text-muted: #9a8b73;
+    --airpg-text-accent: #ffd700;
+    
+    /* Status Colors */
+    --airpg-health: #dc143c;
+    --airpg-mana: #1e90ff;
+    --airpg-success: #4caf50;
+    --airpg-warning: #ff9800;
+    --airpg-danger: #f44336;
+    
+    /* Spacing & Sizing */
+    --airpg-border-radius: 8px;
+    --airpg-border-radius-sm: 4px;
+    --airpg-border-radius-lg: 12px;
+    --airpg-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --airpg-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --airpg-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+    --airpg-shadow-glow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+/* === Global Styles === */
+body {
+    background: linear-gradient(135deg, var(--airpg-bg-main) 0%, #0f0a05 100%);
+    color: var(--airpg-text-primary);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    overflow: hidden;
+}
+
+/* === Main View Container === */
+vaadin-vertical-layout[class*="GameView"] {
+    background: transparent !important;
+    padding: var(--lumo-space-m) !important;
+}
+
+/* === Title Styling === */
+h1 {
+    background: linear-gradient(135deg, var(--airpg-accent) 0%, var(--airpg-accent-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin: 0 0 var(--lumo-space-m) 0;
+    letter-spacing: 2px;
+    position: relative;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--airpg-accent), transparent);
+}
+
+h3 {
+    color: var(--airpg-accent);
+    font-size: 1.2rem;
+    margin: 0 0 var(--lumo-space-s) 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--airpg-accent);
+    padding-bottom: var(--lumo-space-xs);
+}
+
+/* === Story/Text Area Styling === */
+vaadin-text-area::part(input-field) {
+    background: var(--airpg-bg-surface) !important;
+    border: 2px solid var(--airpg-primary) !important;
+    border-radius: var(--airpg-border-radius) !important;
+    box-shadow: var(--airpg-shadow-md), inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+vaadin-text-area::part(input-field):focus-within {
+    border-color: var(--airpg-accent) !important;
+    box-shadow: var(--airpg-shadow-lg), var(--airpg-shadow-glow), inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+vaadin-text-area textarea {
+    color: var(--airpg-text-primary) !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    padding: var(--lumo-space-m) !important;
+    background: transparent !important;
+}
+
+vaadin-text-area::part(label) {
+    color: var(--airpg-accent) !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 1.1rem !important;
+}
+
+/* === Input Field Styling === */
+vaadin-text-field::part(input-field),
+vaadin-combo-box::part(input-field) {
+    background: var(--airpg-bg-panel) !important;
+    border: 1px solid var(--airpg-primary) !important;
+    border-radius: var(--airpg-border-radius-sm) !important;
+    box-shadow: var(--airpg-shadow-sm) !important;
+    transition: all 0.3s ease !important;
+}
+
+vaadin-text-field::part(input-field):hover,
+vaadin-combo-box::part(input-field):hover {
+    border-color: var(--airpg-primary-light) !important;
+}
+
+vaadin-text-field::part(input-field):focus-within,
+vaadin-combo-box::part(input-field):focus-within {
+    border-color: var(--airpg-accent) !important;
+    box-shadow: var(--airpg-shadow-md), 0 0 8px rgba(212, 175, 55, 0.3) !important;
+}
+
+vaadin-text-field input,
+vaadin-combo-box input {
+    color: var(--airpg-text-primary) !important;
+}
+
+vaadin-text-field::part(label),
+vaadin-combo-box::part(label) {
+    color: var(--airpg-text-secondary) !important;
+    font-weight: bold !important;
+}
+
+/* === Button Styling === */
+vaadin-button {
+    border-radius: var(--airpg-border-radius-sm) !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: var(--airpg-shadow-sm) !important;
+}
+
+/* Primary Button (Submit, Start) */
+vaadin-button[theme~="primary"] {
+    background: linear-gradient(135deg, var(--airpg-accent) 0%, var(--airpg-accent-glow) 100%) !important;
+    color: var(--airpg-bg-main) !important;
+    border: none !important;
+}
+
+vaadin-button[theme~="primary"]:hover:not([disabled]) {
+    background: linear-gradient(135deg, var(--airpg-accent-glow) 0%, var(--airpg-accent) 100%) !important;
+    box-shadow: var(--airpg-shadow-md), var(--airpg-shadow-glow) !important;
+    transform: translateY(-2px) !important;
+}
+
+vaadin-button[theme~="primary"]:active:not([disabled]) {
+    transform: translateY(0) !important;
+}
+
+/* Contrast Button (New Game) */
+vaadin-button[theme~="contrast"] {
+    background: var(--airpg-primary) !important;
+    color: var(--airpg-text-primary) !important;
+    border: 1px solid var(--airpg-primary-light) !important;
+}
+
+vaadin-button[theme~="contrast"]:hover:not([disabled]) {
+    background: var(--airpg-primary-light) !important;
+    box-shadow: var(--airpg-shadow-md) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Success Button (Save) */
+vaadin-button[theme~="success"] {
+    background: var(--airpg-success) !important;
+    color: white !important;
+    border: none !important;
+}
+
+vaadin-button[theme~="success"]:hover:not([disabled]) {
+    background: #45a049 !important;
+    box-shadow: var(--airpg-shadow-md) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Tertiary Button (Load) */
+vaadin-button[theme~="tertiary"] {
+    background: transparent !important;
+    color: var(--airpg-accent) !important;
+    border: 1px solid var(--airpg-accent) !important;
+}
+
+vaadin-button[theme~="tertiary"]:hover:not([disabled]) {
+    background: rgba(212, 175, 55, 0.1) !important;
+    box-shadow: var(--airpg-shadow-sm) !important;
+}
+
+/* Error Button (Delete) */
+vaadin-button[theme~="error"] {
+    background: var(--airpg-danger) !important;
+    color: white !important;
+}
+
+vaadin-button[theme~="error"]:hover:not([disabled]) {
+    background: #da190b !important;
+    box-shadow: var(--airpg-shadow-md) !important;
+}
+
+/* Disabled Button */
+vaadin-button[disabled] {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+/* === Panel Styling === */
+vaadin-vertical-layout[style*="border"] {
+    background: var(--airpg-bg-panel) !important;
+    border: 2px solid var(--airpg-primary) !important;
+    border-radius: var(--airpg-border-radius) !important;
+    box-shadow: var(--airpg-shadow-md), inset 0 1px 0 rgba(212, 175, 55, 0.1) !important;
+    padding: var(--lumo-space-m) !important;
+    position: relative !important;
+}
+
+vaadin-vertical-layout[style*="border"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--airpg-accent), transparent);
+    opacity: 0.5;
+}
+
+/* === Paragraph & Text Styling === */
+p {
+    color: var(--airpg-text-secondary) !important;
+    margin: var(--lumo-space-xs) 0 !important;
+    line-height: 1.5 !important;
+}
+
+span {
+    color: var(--airpg-text-primary) !important;
+}
+
+/* === Dialog Styling === */
+vaadin-dialog-overlay::part(overlay) {
+    background: var(--airpg-bg-elevated) !important;
+    border: 2px solid var(--airpg-accent) !important;
+    border-radius: var(--airpg-border-radius-lg) !important;
+    box-shadow: var(--airpg-shadow-lg), var(--airpg-shadow-glow) !important;
+}
+
+vaadin-dialog-overlay::part(header) {
+    background: linear-gradient(135deg, var(--airpg-primary-dark) 0%, var(--airpg-primary) 100%) !important;
+    color: var(--airpg-accent) !important;
+    border-bottom: 1px solid var(--airpg-accent) !important;
+    padding: var(--lumo-space-m) !important;
+}
+
+vaadin-dialog-overlay::part(content) {
+    background: var(--airpg-bg-panel) !important;
+    color: var(--airpg-text-primary) !important;
+}
+
+vaadin-dialog-overlay::part(footer) {
+    background: var(--airpg-bg-elevated) !important;
+    border-top: 1px solid var(--airpg-primary) !important;
+    padding: var(--lumo-space-m) !important;
+}
+
+/* === Grid Styling === */
+vaadin-grid {
+    background: var(--airpg-bg-panel) !important;
+    border: 1px solid var(--airpg-primary) !important;
+    border-radius: var(--airpg-border-radius) !important;
+}
+
+vaadin-grid::part(header-cell) {
+    background: var(--airpg-primary-dark) !important;
+    color: var(--airpg-accent) !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+}
+
+vaadin-grid::part(cell) {
+    background: var(--airpg-bg-panel) !important;
+    color: var(--airpg-text-primary) !important;
+}
+
+vaadin-grid::part(row):hover {
+    background: var(--airpg-bg-elevated) !important;
+}
+
+vaadin-grid::part(selected-row) {
+    background: rgba(212, 175, 55, 0.2) !important;
+}
+
+/* === Notification Styling === */
+vaadin-notification-card {
+    background: var(--airpg-bg-elevated) !important;
+    color: var(--airpg-text-primary) !important;
+    border: 1px solid var(--airpg-accent) !important;
+    border-radius: var(--airpg-border-radius) !important;
+    box-shadow: var(--airpg-shadow-lg) !important;
+}
+
+vaadin-notification-card[theme~="success"] {
+    background: var(--airpg-success) !important;
+    color: white !important;
+    border-color: #45a049 !important;
+}
+
+vaadin-notification-card[theme~="error"] {
+    background: var(--airpg-danger) !important;
+    color: white !important;
+    border-color: #da190b !important;
+}
+
+/* === Confirm Dialog === */
+vaadin-confirm-dialog-overlay::part(overlay) {
+    background: var(--airpg-bg-elevated) !important;
+    border: 2px solid var(--airpg-accent) !important;
+    border-radius: var(--airpg-border-radius-lg) !important;
+}
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--airpg-bg-main);
+    border-radius: var(--airpg-border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--airpg-primary);
+    border-radius: var(--airpg-border-radius-sm);
+    border: 2px solid var(--airpg-bg-main);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--airpg-primary-light);
+}
+
+/* === Animation Effects === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: var(--airpg-shadow-md);
+    }
+    50% {
+        box-shadow: var(--airpg-shadow-lg), var(--airpg-shadow-glow);
+    }
+}
+
+/* Apply fade-in animation to main content */
+vaadin-vertical-layout {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    vaadin-horizontal-layout {
+        flex-direction: column !important;
+    }
+    
+    vaadin-vertical-layout[style*="width: 70%"],
+    vaadin-vertical-layout[style*="width: 30%"] {
+        width: 100% !important;
+    }
+}
+
+/* === Special Effects for Combat === */
+.combat-active {
+    animation: glow 2s infinite;
+}
+
+/* === Stat Bar Styling === */
+.stat-bar {
+    height: 8px;
+    background: var(--airpg-bg-main);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.health-bar {
+    background: var(--airpg-health);
+}
+
+.mana-bar {
+    background: var(--airpg-mana);
+}
+
+/* === Icon Styling === */
+vaadin-icon {
+    color: var(--airpg-text-primary);
+}
+
+vaadin-button[theme~="success"] vaadin-icon {
+    color: white;
+}
+
+vaadin-button[theme~="error"] vaadin-icon {
+    color: white;
+}
+
+/* === Accessibility === */
+*:focus-visible {
+    outline: 2px solid var(--airpg-accent);
+    outline-offset: 2px;
+}
+
+/* === Print Styles === */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+}

@@ -5,6 +5,7 @@ import com.airpg.domain.Hero;
 import com.airpg.domain.TeamMember;
 import com.airpg.services.GameEngine;
 import com.airpg.services.GamePersistenceService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -468,6 +469,54 @@ public class GameView extends VerticalLayout {
         updateStatsPanel(state.getHero());
         updateTeamPanel(state);
         updateQuestPanel(state);
+        updateCombatIndicator();
+    }
+    
+    /**
+     * Update combat indicator in stats panel
+     */
+    private void updateCombatIndicator() {
+        // Add combat indicator at the top of stats panel if in combat
+        if (gameEngine.isInCombat()) {
+            if (statsPanel.getComponentCount() > 1 && 
+                statsPanel.getComponentAt(1) instanceof HorizontalLayout combatCheck) {
+                // Combat indicator already exists, don't add again
+                return;
+            }
+            
+            HorizontalLayout combatIndicator = new HorizontalLayout();
+            combatIndicator.setWidthFull();
+            combatIndicator.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+            combatIndicator.setPadding(true);
+            combatIndicator.getStyle()
+                .set("background", "linear-gradient(135deg, var(--airpg-danger) 0%, #c41e1e 100%)")
+                .set("border-radius", "var(--airpg-border-radius-sm)")
+                .set("animation", "glow 2s infinite")
+                .set("margin-bottom", "var(--lumo-space-s)");
+            
+            Span combatIcon = new Span("⚔");
+            combatIcon.getStyle().set("font-size", "1.5em");
+            
+            Span combatText = new Span(" IN COMBAT ");
+            combatText.getStyle().set("color", "white").set("font-weight", "bold").set("letter-spacing", "2px");
+            
+            combatIndicator.add(combatIcon, combatText, combatIcon);
+            
+            // Insert after title (index 1)
+            if (statsPanel.getComponentCount() > 1) {
+                statsPanel.addComponentAtIndex(1, combatIndicator);
+            }
+        } else {
+            // Remove combat indicator if present
+            if (statsPanel.getComponentCount() > 1 && 
+                statsPanel.getComponentAt(1) instanceof HorizontalLayout) {
+                Component secondComponent = statsPanel.getComponentAt(1);
+                // Check if it's the combat indicator by looking for specific styling
+                if (secondComponent.getElement().getStyle().get("animation") != null) {
+                    statsPanel.remove(secondComponent);
+                }
+            }
+        }
     }
     
     /**
@@ -479,17 +528,83 @@ public class GameView extends VerticalLayout {
             statsPanel.remove(statsPanel.getComponentAt(1));
         }
         
-        statsPanel.add(
-                new Paragraph(String.format("Name: %s", hero.getName())),
-                new Paragraph(String.format("Class: %s", hero.getCharacterClass())),
-                new Paragraph(String.format("Level: %d", hero.getLevel())),
-                new Paragraph(String.format("HP: %d/%d", hero.getCurrentHealth(), hero.getMaxHealth())),
-                new Paragraph(String.format("Mana: %d/%d", hero.getCurrentMana(), hero.getMaxMana())),
-                new Paragraph(String.format("STR: %d", hero.getStrength())),
-                new Paragraph(String.format("INT: %d", hero.getIntelligence())),
-                new Paragraph(String.format("AGI: %d", hero.getAgility())),
-                new Paragraph(String.format("XP: %d", hero.getExperience()))
-        );
+        // Name and Class with emphasis
+        Span nameSpan = new Span(hero.getName());
+        nameSpan.getStyle().set("color", "var(--airpg-accent)").set("font-weight", "bold").set("font-size", "1.1em");
+        Paragraph namePara = new Paragraph();
+        namePara.add(new Span("Name: "), nameSpan);
+        
+        Paragraph classPara = new Paragraph(String.format("Class: %s", hero.getCharacterClass()));
+        classPara.getStyle().set("font-style", "italic");
+        
+        // Level with badge-like styling
+        Paragraph levelPara = new Paragraph(String.format("⭐ Level %d", hero.getLevel()));
+        levelPara.getStyle().set("font-weight", "bold");
+        
+        // Health bar
+        HorizontalLayout healthLayout = createStatBar("❤ HP", hero.getCurrentHealth(), hero.getMaxHealth(), "var(--airpg-health)");
+        
+        // Mana bar
+        HorizontalLayout manaLayout = createStatBar("✦ Mana", hero.getCurrentMana(), hero.getMaxMana(), "var(--airpg-mana)");
+        
+        // Attributes with icons
+        Paragraph strPara = new Paragraph(String.format("⚔ STR: %d (+%d)", hero.getStrength(), hero.getStrengthModifier()));
+        Paragraph intPara = new Paragraph(String.format("📖 INT: %d (+%d)", hero.getIntelligence(), hero.getIntelligenceModifier()));
+        Paragraph agiPara = new Paragraph(String.format("⚡ AGI: %d (+%d)", hero.getAgility(), hero.getAgilityModifier()));
+        
+        // XP Progress
+        Paragraph xpPara = new Paragraph(String.format("✨ XP: %d", hero.getExperience()));
+        xpPara.getStyle().set("color", "var(--airpg-accent)");
+        
+        statsPanel.add(namePara, classPara, levelPara, healthLayout, manaLayout, strPara, intPara, agiPara, xpPara);
+    }
+    
+    /**
+     * Create a visual stat bar with current/max values
+     */
+    private HorizontalLayout createStatBar(String label, int current, int max, String color) {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidthFull();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setSpacing(false);
+        
+        Paragraph labelPara = new Paragraph(label);
+        labelPara.getStyle().set("margin", "0").set("min-width", "80px").set("font-weight", "bold");
+        
+        VerticalLayout barContainer = new VerticalLayout();
+        barContainer.setWidthFull();
+        barContainer.setSpacing(false);
+        barContainer.setPadding(false);
+        
+        // Bar background
+        HorizontalLayout bar = new HorizontalLayout();
+        bar.setWidthFull();
+        bar.setHeight("12px");
+        bar.getStyle()
+            .set("background", "var(--airpg-bg-main)")
+            .set("border-radius", "6px")
+            .set("overflow", "hidden")
+            .set("border", "1px solid var(--airpg-primary)");
+        
+        // Bar fill
+        HorizontalLayout fill = new HorizontalLayout();
+        double percentage = max > 0 ? (double) current / max * 100 : 0;
+        fill.setWidth(percentage + "%");
+        fill.setHeight("100%");
+        fill.getStyle().set("background", color).set("transition", "width 0.3s ease");
+        
+        bar.add(fill);
+        
+        // Value text
+        Paragraph valuePara = new Paragraph(String.format("%d/%d", current, max));
+        valuePara.getStyle().set("margin", "0").set("font-size", "0.85em").set("color", "var(--airpg-text-secondary)");
+        
+        barContainer.add(bar, valuePara);
+        
+        layout.add(labelPara, barContainer);
+        layout.setFlexGrow(1, barContainer);
+        
+        return layout;
     }
     
     /**
@@ -502,17 +617,39 @@ public class GameView extends VerticalLayout {
         }
         
         if (state.getTeamMembers().isEmpty()) {
-            teamPanel.add(new Paragraph("None"));
+            Paragraph emptyPara = new Paragraph("No companions yet");
+            emptyPara.getStyle().set("color", "var(--airpg-text-muted)").set("font-style", "italic");
+            teamPanel.add(emptyPara);
         } else {
             for (TeamMember member : state.getTeamMembers()) {
                 VerticalLayout memberLayout = new VerticalLayout();
                 memberLayout.setSpacing(false);
-                memberLayout.setPadding(false);
-                memberLayout.add(
-                        new Paragraph(String.format("• %s (%s)", member.getName(), member.getCharacterClass())),
-                        new Paragraph(String.format("  HP: %d/%d", member.getCurrentHealth(), member.getMaxHealth())),
-                        new Paragraph(String.format("  Loyalty: %d/100", member.getLoyalty()))
-                );
+                memberLayout.setPadding(true);
+                memberLayout.getStyle()
+                    .set("background", "var(--airpg-bg-surface)")
+                    .set("border-radius", "var(--airpg-border-radius-sm)")
+                    .set("margin-bottom", "var(--lumo-space-s)")
+                    .set("border-left", "3px solid var(--airpg-accent)");
+                
+                // Member name and class
+                Span memberName = new Span(member.getName());
+                memberName.getStyle().set("color", "var(--airpg-accent)").set("font-weight", "bold");
+                Paragraph nameLine = new Paragraph();
+                nameLine.add(new Span("🗡 "), memberName, new Span(" (" + member.getCharacterClass() + ")"));
+                nameLine.getStyle().set("margin", "0 0 " + "var(--lumo-space-xs)" + " 0");
+                
+                // Health bar
+                HorizontalLayout hpBar = createStatBar("HP", member.getCurrentHealth(), member.getMaxHealth(), "var(--airpg-health)");
+                hpBar.getStyle().set("margin-top", "var(--lumo-space-xs)");
+                
+                // Loyalty indicator
+                Paragraph loyaltyPara = new Paragraph();
+                int loyalty = member.getLoyalty();
+                String loyaltyEmoji = loyalty >= 80 ? "💖" : loyalty >= 60 ? "💚" : loyalty >= 40 ? "💛" : "🤍";
+                loyaltyPara.add(loyaltyEmoji + " Loyalty: " + loyalty + "/100");
+                loyaltyPara.getStyle().set("margin", "var(--lumo-space-xs) 0 0 0").set("font-size", "0.9em");
+                
+                memberLayout.add(nameLine, hpBar, loyaltyPara);
                 teamPanel.add(memberLayout);
             }
         }
@@ -527,13 +664,54 @@ public class GameView extends VerticalLayout {
             questPanel.remove(questPanel.getComponentAt(1));
         }
 
-        questPanel.add(new Paragraph(String.format("Main: %s", state.getMainGoal())));
+        // Main goal with special styling
+        VerticalLayout mainGoalLayout = new VerticalLayout();
+        mainGoalLayout.setSpacing(false);
+        mainGoalLayout.setPadding(true);
+        mainGoalLayout.getStyle()
+            .set("background", "linear-gradient(135deg, var(--airpg-bg-surface) 0%, var(--airpg-bg-panel) 100%)")
+            .set("border-radius", "var(--airpg-border-radius-sm)")
+            .set("border", "1px solid var(--airpg-accent)")
+            .set("margin-bottom", "var(--lumo-space-m)");
+        
+        Paragraph goalLabel = new Paragraph("🎯 Main Quest");
+        goalLabel.getStyle().set("color", "var(--airpg-accent)").set("font-weight", "bold").set("margin", "0 0 var(--lumo-space-xs) 0");
+        
+        Paragraph goalText = new Paragraph(state.getMainGoal());
+        goalText.getStyle().set("margin", "0").set("font-style", "italic");
+        
+        mainGoalLayout.add(goalLabel, goalText);
+        questPanel.add(mainGoalLayout);
 
         if (!state.getActiveQuests().isEmpty()) {
-            questPanel.add(new Paragraph("\nSide Quests:"));
-            state.getActiveQuests().forEach(quest ->
-                    questPanel.add(new Paragraph(String.format("• %s", quest.getTitle())))
-            );
+            Paragraph sideQuestLabel = new Paragraph("📜 Side Quests");
+            sideQuestLabel.getStyle()
+                .set("color", "var(--airpg-text-secondary)")
+                .set("font-weight", "bold")
+                .set("margin", "0 0 var(--lumo-space-s) 0")
+                .set("text-transform", "uppercase")
+                .set("font-size", "0.9em");
+            questPanel.add(sideQuestLabel);
+            
+            state.getActiveQuests().forEach(quest -> {
+                HorizontalLayout questLayout = new HorizontalLayout();
+                questLayout.setSpacing(false);
+                questLayout.setPadding(false);
+                questLayout.setAlignItems(FlexComponent.Alignment.START);
+                
+                Span bullet = new Span("▸ ");
+                bullet.getStyle().set("color", "var(--airpg-accent)");
+                
+                Paragraph questPara = new Paragraph(quest.getTitle());
+                questPara.getStyle().set("margin", "0 0 var(--lumo-space-xs) 0");
+                
+                questLayout.add(bullet, questPara);
+                questPanel.add(questLayout);
+            });
+        } else {
+            Paragraph noQuests = new Paragraph("No active side quests");
+            noQuests.getStyle().set("color", "var(--airpg-text-muted)").set("font-style", "italic").set("font-size", "0.9em");
+            questPanel.add(noQuests);
         }
     }
 

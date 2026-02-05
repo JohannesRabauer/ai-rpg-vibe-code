@@ -1,0 +1,446 @@
+/* AI Model Comparison Enhancements - Codex vs Opus 4.6 */
+
+/* === Model Comparison Theme Variants === */
+
+/* Codex Style - Blue/Tech Theme */
+.model-codex {
+    --model-primary: #0066cc;
+    --model-primary-light: #3399ff;
+    --model-primary-dark: #004499;
+    --model-accent: #00d4ff;
+    --model-bg: #001a33;
+    --model-text: #e6f3ff;
+}
+
+/* Opus 4.6 Style - Purple/Premium Theme */
+.model-opus {
+    --model-primary: #8b3dff;
+    --model-primary-light: #a666ff;
+    --model-primary-dark: #6b1aff;
+    --model-accent: #ff4dd2;
+    --model-bg: #1a0033;
+    --model-text: #f3e6ff;
+}
+
+/* === Comparison Container === */
+.comparison-container {
+    display: flex;
+    gap: var(--lumo-space-m);
+    width: 100%;
+    height: 100%;
+}
+
+.comparison-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--airpg-bg-panel);
+    border: 2px solid var(--model-primary);
+    border-radius: var(--airpg-border-radius-lg);
+    padding: var(--lumo-space-m);
+    box-shadow: var(--airpg-shadow-lg), 0 0 20px var(--model-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.comparison-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--model-accent), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* === Model Header Badge === */
+.model-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lumo-space-xs);
+    padding: var(--lumo-space-xs) var(--lumo-space-m);
+    background: linear-gradient(135deg, var(--model-primary) 0%, var(--model-primary-light) 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin-bottom: var(--lumo-space-m);
+}
+
+.model-badge::before {
+    content: '🤖';
+    font-size: 1.2em;
+}
+
+.model-badge.codex::before {
+    content: '⚙';
+}
+
+.model-badge.opus::before {
+    content: '💎';
+}
+
+/* === Performance Metrics === */
+.metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--lumo-space-s);
+    margin-top: var(--lumo-space-m);
+    padding-top: var(--lumo-space-m);
+    border-top: 1px solid var(--airpg-primary);
+}
+
+.metric-card {
+    background: var(--airpg-bg-surface);
+    border: 1px solid var(--model-primary);
+    border-radius: var(--airpg-border-radius-sm);
+    padding: var(--lumo-space-s);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: var(--model-accent);
+}
+
+.metric-label {
+    font-size: 0.8em;
+    color: var(--airpg-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--lumo-space-xs);
+}
+
+.metric-value {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--model-accent);
+}
+
+.metric-unit {
+    font-size: 0.7em;
+    color: var(--airpg-text-secondary);
+    margin-left: 2px;
+}
+
+/* === Response Quality Indicator === */
+.quality-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
+    margin-top: var(--lumo-space-m);
+    padding: var(--lumo-space-s);
+    background: var(--airpg-bg-surface);
+    border-radius: var(--airpg-border-radius-sm);
+}
+
+.quality-label {
+    font-weight: bold;
+    color: var(--airpg-text-secondary);
+}
+
+.quality-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--airpg-bg-main);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.quality-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--model-primary), var(--model-accent));
+    transition: width 0.5s ease;
+    border-radius: 5px;
+}
+
+.quality-score {
+    font-weight: bold;
+    color: var(--model-accent);
+    min-width: 40px;
+    text-align: right;
+}
+
+/* === Token Counter === */
+.token-counter {
+    position: absolute;
+    top: var(--lumo-space-m);
+    right: var(--lumo-space-m);
+    background: rgba(0, 0, 0, 0.5);
+    padding: var(--lumo-space-xs) var(--lumo-space-s);
+    border-radius: var(--airpg-border-radius-sm);
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: var(--model-accent);
+    backdrop-filter: blur(5px);
+}
+
+.token-counter::before {
+    content: '📊 ';
+}
+
+/* === Side-by-Side Diff View === */
+.diff-container {
+    display: flex;
+    gap: 2px;
+    background: var(--airpg-bg-main);
+}
+
+.diff-line {
+    padding: 2px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.diff-line.added {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 3px solid #4caf50;
+}
+
+.diff-line.removed {
+    background: rgba(244, 67, 54, 0.2);
+    border-left: 3px solid #f44336;
+}
+
+.diff-line.unchanged {
+    background: transparent;
+    color: var(--airpg-text-muted);
+}
+
+/* === Model Selector Toggle === */
+.model-selector {
+    display: flex;
+    gap: var(--lumo-space-s);
+    padding: var(--lumo-space-s);
+    background: var(--airpg-bg-surface);
+    border-radius: var(--airpg-border-radius);
+    margin-bottom: var(--lumo-space-m);
+}
+
+.model-option {
+    flex: 1;
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+    background: transparent;
+    border: 2px solid var(--airpg-primary);
+    border-radius: var(--airpg-border-radius-sm);
+    color: var(--airpg-text-secondary);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.model-option:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--airpg-accent);
+}
+
+.model-option.active {
+    background: linear-gradient(135deg, var(--airpg-accent) 0%, var(--airpg-accent-glow) 100%);
+    border-color: var(--airpg-accent);
+    color: var(--airpg-bg-main);
+    box-shadow: var(--airpg-shadow-glow);
+}
+
+.model-option.codex.active {
+    background: linear-gradient(135deg, #0066cc 0%, #3399ff 100%);
+}
+
+.model-option.opus.active {
+    background: linear-gradient(135deg, #8b3dff 0%, #a666ff 100%);
+}
+
+/* === Response Time Chart === */
+.response-chart {
+    margin-top: var(--lumo-space-m);
+    padding: var(--lumo-space-m);
+    background: var(--airpg-bg-surface);
+    border-radius: var(--airpg-border-radius);
+    border: 1px solid var(--airpg-primary);
+}
+
+.chart-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
+    margin-bottom: var(--lumo-space-s);
+}
+
+.chart-label {
+    min-width: 80px;
+    font-weight: bold;
+    color: var(--airpg-text-secondary);
+}
+
+.chart-track {
+    flex: 1;
+    height: 30px;
+    background: var(--airpg-bg-main);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.chart-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--model-primary), var(--model-accent));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: var(--lumo-space-s);
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: width 1s ease;
+}
+
+/* === Streaming Indicator === */
+.streaming-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lumo-space-xs);
+    color: var(--model-accent);
+    font-size: 0.9em;
+    animation: pulse 2s infinite;
+}
+
+.streaming-indicator::before {
+    content: '⚡';
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* === Winner Badge === */
+.winner-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1410;
+    padding: var(--lumo-space-xs) var(--lumo-space-s);
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.5);
+    animation: bounce 2s infinite;
+}
+
+.winner-badge::before {
+    content: '👑 ';
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* === Responsive Layout === */
+@media (max-width: 1200px) {
+    .comparison-container {
+        flex-direction: column;
+    }
+    
+    .comparison-panel {
+        width: 100%;
+    }
+}
+
+/* === Tooltip Enhancement === */
+.comparison-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.comparison-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--lumo-space-xs) var(--lumo-space-s);
+    background: var(--airpg-bg-elevated);
+    color: var(--airpg-text-primary);
+    border: 1px solid var(--airpg-accent);
+    border-radius: var(--airpg-border-radius-sm);
+    font-size: 0.85em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.comparison-tooltip:hover::after {
+    opacity: 1;
+}
+
+/* === Stats Comparison Table === */
+.stats-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 var(--lumo-space-xs);
+    margin-top: var(--lumo-space-m);
+}
+
+.stats-table th {
+    background: var(--airpg-bg-surface);
+    color: var(--airpg-accent);
+    padding: var(--lumo-space-s);
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+}
+
+.stats-table td {
+    background: var(--airpg-bg-panel);
+    padding: var(--lumo-space-s);
+    border-top: 1px solid var(--airpg-primary);
+    border-bottom: 1px solid var(--airpg-primary);
+}
+
+.stats-table td:first-child {
+    border-left: 1px solid var(--airpg-primary);
+    border-top-left-radius: var(--airpg-border-radius-sm);
+    border-bottom-left-radius: var(--airpg-border-radius-sm);
+}
+
+.stats-table td:last-child {
+    border-right: 1px solid var(--airpg-primary);
+    border-top-right-radius: var(--airpg-border-radius-sm);
+    border-bottom-right-radius: var(--airpg-border-radius-sm);
+}
+
+.stats-table .better {
+    color: var(--airpg-success);
+    font-weight: bold;
+}
+
+.stats-table .worse {
+    color: var(--airpg-danger);
+}
