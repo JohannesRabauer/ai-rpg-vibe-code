@@ -40,6 +40,10 @@
 }
 
 /* === Global Styles === */
+html {
+    background: var(--airpg-bg-main);
+}
+
 body {
     background: linear-gradient(135deg, var(--airpg-bg-main) 0%, #0f0a05 100%);
     color: var(--airpg-text-primary);
@@ -454,6 +458,13 @@ vaadin-button[theme~="error"] vaadin-icon {
 *:focus-visible {
     outline: 2px solid var(--airpg-accent);
     outline-offset: 2px;
+}
+
+vaadin-combo-box:focus-visible,
+vaadin-text-field:focus-visible,
+vaadin-text-area:focus-visible,
+vaadin-button:focus-visible {
+    outline: none;
 }
 
 /* === Print Styles === */
