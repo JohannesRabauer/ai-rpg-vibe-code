@@ -73,6 +73,13 @@ public class TeamMember extends GameCharacter {
                 member.setConstitution(10);
                 member.setCharisma(12);
                 break;
+            case "bard":
+                member.setStrength(10);
+                member.setIntelligence(14);
+                member.setAgility(12);
+                member.setConstitution(12);
+                member.setCharisma(16);
+                break;
             default:
                 member.setStrength(12);
                 member.setIntelligence(12);

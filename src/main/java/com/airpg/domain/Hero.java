@@ -55,6 +55,13 @@ public class Hero extends GameCharacter {
                 hero.setConstitution(10);
                 hero.setCharisma(14);
                 break;
+            case "bard":
+                hero.setStrength(10);
+                hero.setIntelligence(14);
+                hero.setAgility(12);
+                hero.setConstitution(12);
+                hero.setCharisma(16);
+                break;
             default:
                 // Balanced default
                 hero.setStrength(12);

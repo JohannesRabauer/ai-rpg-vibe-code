@@ -104,6 +104,9 @@ public class GameView extends VerticalLayout {
         actionDropdown.setPlaceholder("Select action or type custom...");
         actionDropdown.setAllowCustomValue(true);
         actionDropdown.setWidthFull();
+        actionDropdown.getStyle().set("--vaadin-input-field-label-color", "#ffffff");
+        actionDropdown.getStyle().set("--vaadin-input-field-label-font-weight", "bold");
+        actionDropdown.getStyle().set("--vaadin-input-field-label-font-size", "1.1em");
         actionDropdown.addCustomValueSetListener(e -> {
             String customValue = e.getDetail();
             if (customValue != null && !customValue.trim().isEmpty()) {
@@ -242,7 +245,7 @@ public class GameView extends VerticalLayout {
         
         // Class selection
         ComboBox<String> classSelect = new ComboBox<>("Character Class");
-        classSelect.setItems("Warrior", "Mage", "Rogue", "Ranger", "Cleric");
+        classSelect.setItems("Warrior", "Mage", "Rogue", "Ranger", "Cleric", "Bard");
         classSelect.setValue("Warrior");
         classSelect.setWidthFull();
         classSelect.setRequired(true);
@@ -256,6 +259,7 @@ public class GameView extends VerticalLayout {
                 case "Rogue" -> "Rogue: Agile fighter skilled in stealth and critical hits";
                 case "Ranger" -> "Ranger: Balanced fighter with ranged combat abilities";
                 case "Cleric" -> "Cleric: Support class with healing and protection spells";
+                case "Bard" -> "Bard: Musician with diverse instruments and song skills";
                 default -> "";
             };
             classDescription.setText(description);
