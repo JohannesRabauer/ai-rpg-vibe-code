@@ -1,8 +1,6 @@
 package com.airpg.agents;
 
 import com.airpg.agents.memory.InMemoryChatMemoryStore;
-import com.airpg.domain.GameCharacter;
-import com.airpg.domain.CombatAction;
 import com.airpg.domain.NPC;
 import com.airpg.domain.TeamMember;
 import dev.langchain4j.data.message.ChatMessage;
@@ -25,22 +23,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ApplicationScoped
 public class AgentService {
-    
+
     private static final Logger LOG = Logger.getLogger(AgentService.class);
-    
+
     @Inject
     AIProviderFactory providerFactory;
-    
+
     @Inject
     InMemoryChatMemoryStore memoryStore;
-    
+
     // Agent caches
     private WorldNarratorAgent worldNarratorAgent;
     private WorldNarratorStreamingAgent worldNarratorStreamingAgent;
     private CombatNarratorAgent combatNarratorAgent;
     private final Map<String, NPCAgent> npcAgents = new ConcurrentHashMap<>();
     private final Map<String, CompanionAgent> companionAgents = new ConcurrentHashMap<>();
-    
+
     /**
      * Get or create the world narrator agent
      */
@@ -52,17 +50,17 @@ public class AgentService {
                     .chatMemoryStore(memoryStore)
                     .id("world-narrator")
                     .build();
-            
+
             worldNarratorAgent = AiServices.builder(WorldNarratorAgent.class)
                     .chatLanguageModel(model)
                     .chatMemory(memory)
                     .build();
-            
+
             LOG.info("World narrator agent created");
         }
         return worldNarratorAgent;
     }
-    
+
     /**
      * Get or create the streaming world narrator agent
      */
@@ -74,17 +72,17 @@ public class AgentService {
                     .chatMemoryStore(memoryStore)
                     .id("world-narrator")
                     .build();
-            
+
             worldNarratorStreamingAgent = AiServices.builder(WorldNarratorStreamingAgent.class)
                     .streamingChatLanguageModel(model)
                     .chatMemory(memory)
                     .build();
-            
+
             LOG.info("Streaming world narrator agent created");
         }
         return worldNarratorStreamingAgent;
     }
-    
+
     /**
      * Get or create the combat narrator agent
      */
@@ -96,17 +94,17 @@ public class AgentService {
                     .chatMemoryStore(memoryStore)
                     .id("combat-narrator")
                     .build();
-            
+
             combatNarratorAgent = AiServices.builder(CombatNarratorAgent.class)
                     .chatLanguageModel(model)
                     .chatMemory(memory)
                     .build();
-            
+
             LOG.info("Combat narrator agent created");
         }
         return combatNarratorAgent;
     }
-    
+
     /**
      * Get or create an NPC agent
      */
@@ -118,17 +116,17 @@ public class AgentService {
                     .chatMemoryStore(memoryStore)
                     .id("npc-" + id)
                     .build();
-            
+
             NPCAgent agent = AiServices.builder(NPCAgent.class)
                     .chatLanguageModel(model)
                     .chatMemory(memory)
                     .build();
-            
+
             LOG.infof("NPC agent created for: %s", npc.getName());
             return agent;
         });
     }
-    
+
     /**
      * Get or create a companion agent
      */
@@ -140,17 +138,17 @@ public class AgentService {
                     .chatMemoryStore(memoryStore)
                     .id("companion-" + id)
                     .build();
-            
+
             CompanionAgent agent = AiServices.builder(CompanionAgent.class)
                     .chatLanguageModel(model)
                     .chatMemory(memory)
                     .build();
-            
+
             LOG.infof("Companion agent created for: %s", companion.getName());
             return agent;
         });
     }
-    
+
     /**
      * Clear all agent memories (useful for new game)
      */
