@@ -61,7 +61,7 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
                 Long saveId;
                 if (existingRecord != null) {
                     // Update existing save
-                    saveId = existingRecord.get(field("id", Long.class));
+                    saveId = existingRecord.get("ID", Long.class);
                     txDsl.update(table("game_saves"))
                             .set(field("save_name"), saveName)
                             .set(field("hero_name"), state.getHero().getName())
@@ -105,7 +105,7 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
                             )
                             .returning(field("id", Long.class))
                             .fetchOne()
-                            .get(field("id", Long.class));
+                            .get("ID", Long.class);
                 }
 
                 // Save hero
@@ -163,10 +163,10 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
 
             // Restore basic fields - need to use reflection or setter since gameId is set in constructor
             // For simplicity, we'll create a new state and set values
-            setGameId(state, saveRecord.get(field("game_id", String.class)));
-            state.setCurrentLocation(saveRecord.get(field("current_location", String.class)));
-            state.setMainGoal(saveRecord.get(field("main_goal", String.class)));
-            state.setStatus(GameState.GameStatus.valueOf(saveRecord.get(field("game_status", String.class))));
+            setGameId(state, saveRecord.get("GAME_ID", String.class));
+            state.setCurrentLocation(saveRecord.get("CURRENT_LOCATION", String.class));
+            state.setMainGoal(saveRecord.get("MAIN_GOAL", String.class));
+            state.setStatus(GameState.GameStatus.valueOf(saveRecord.get("GAME_STATUS", String.class)));
 
             // Load hero
             Hero hero = loadHero(saveId);
@@ -211,15 +211,15 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
             List<SaveMetadata> saves = new ArrayList<>();
             for (Record record : records) {
                 saves.add(new SaveMetadata(
-                        record.get(field("id", Long.class)),
-                        record.get(field("game_id", String.class)),
-                        record.get(field("save_name", String.class)),
-                        record.get(field("hero_name", String.class)),
-                        record.get(field("hero_class", String.class)),
-                        record.get(field("hero_level", Integer.class)),
-                        record.get(field("current_location", String.class)),
-                        record.get(field("created_at", LocalDateTime.class)),
-                        record.get(field("updated_at", LocalDateTime.class))
+                        record.get("ID", Long.class),
+                        record.get("GAME_ID", String.class),
+                        record.get("SAVE_NAME", String.class),
+                        record.get("HERO_NAME", String.class),
+                        record.get("HERO_CLASS", String.class),
+                        record.get("HERO_LEVEL", Integer.class),
+                        record.get("CURRENT_LOCATION", String.class),
+                        record.get("CREATED_AT", LocalDateTime.class),
+                        record.get("UPDATED_AT", LocalDateTime.class)
                 ));
             }
             return saves;
@@ -306,9 +306,9 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
 
             Map<Object, List<ChatMessage>> memories = new HashMap<>();
             for (Record record : records) {
-                String memoryId = record.get(field("memory_id", String.class));
-                String messageType = record.get(field("message_type", String.class));
-                String content = record.get(field("content", String.class));
+                String memoryId = record.get("MEMORY_ID", String.class);
+                String messageType = record.get("MESSAGE_TYPE", String.class);
+                String content = record.get("CONTENT", String.class);
 
                 ChatMessage message = createChatMessage(messageType, content);
                 memories.computeIfAbsent(memoryId, k -> new ArrayList<>()).add(message);
@@ -367,21 +367,21 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
         }
 
         Hero hero = Hero.builder()
-                .name(record.get(field("name", String.class)))
-                .characterClass(record.get(field("character_class", String.class)))
-                .level(record.get(field("level", Integer.class)))
-                .experience(record.get(field("experience", Integer.class)))
-                .strength(record.get(field("strength", Integer.class)))
-                .intelligence(record.get(field("intelligence", Integer.class)))
-                .agility(record.get(field("agility", Integer.class)))
-                .constitution(record.get(field("constitution", Integer.class)))
-                .charisma(record.get(field("charisma", Integer.class)))
-                .currentHealth(record.get(field("current_health", Integer.class)))
-                .maxHealth(record.get(field("max_health", Integer.class)))
-                .currentMana(record.get(field("current_mana", Integer.class)))
-                .maxMana(record.get(field("max_mana", Integer.class)))
-                .armorBonus(record.get(field("armor_bonus", Integer.class)))
-                .weaponBonus(record.get(field("weapon_bonus", Integer.class)))
+                .name(record.get("NAME", String.class))
+                .characterClass(record.get("CHARACTER_CLASS", String.class))
+                .level(record.get("LEVEL", Integer.class))
+                .experience(record.get("EXPERIENCE", Integer.class))
+                .strength(record.get("STRENGTH", Integer.class))
+                .intelligence(record.get("INTELLIGENCE", Integer.class))
+                .agility(record.get("AGILITY", Integer.class))
+                .constitution(record.get("CONSTITUTION", Integer.class))
+                .charisma(record.get("CHARISMA", Integer.class))
+                .currentHealth(record.get("CURRENT_HEALTH", Integer.class))
+                .maxHealth(record.get("MAX_HEALTH", Integer.class))
+                .currentMana(record.get("CURRENT_MANA", Integer.class))
+                .maxMana(record.get("MAX_MANA", Integer.class))
+                .armorBonus(record.get("ARMOR_BONUS", Integer.class))
+                .weaponBonus(record.get("WEAPON_BONUS", Integer.class))
                 .build();
 
         return hero;
@@ -421,23 +421,23 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
         List<TeamMember> members = new ArrayList<>();
         for (Record record : records) {
             TeamMember member = TeamMember.builder()
-                    .id(record.get(field("member_id", String.class)))
-                    .name(record.get(field("name", String.class)))
-                    .characterClass(record.get(field("character_class", String.class)))
-                    .personality(record.get(field("personality", String.class)))
-                    .backstory(record.get(field("backstory", String.class)))
-                    .loyalty(record.get(field("loyalty", Integer.class)))
-                    .strength(record.get(field("strength", Integer.class)))
-                    .intelligence(record.get(field("intelligence", Integer.class)))
-                    .agility(record.get(field("agility", Integer.class)))
-                    .constitution(record.get(field("constitution", Integer.class)))
-                    .charisma(record.get(field("charisma", Integer.class)))
-                    .currentHealth(record.get(field("current_health", Integer.class)))
-                    .maxHealth(record.get(field("max_health", Integer.class)))
-                    .currentMana(record.get(field("current_mana", Integer.class)))
-                    .maxMana(record.get(field("max_mana", Integer.class)))
-                    .armorBonus(record.get(field("armor_bonus", Integer.class)))
-                    .weaponBonus(record.get(field("weapon_bonus", Integer.class)))
+                    .id(record.get("MEMBER_ID", String.class))
+                    .name(record.get("NAME", String.class))
+                    .characterClass(record.get("CHARACTER_CLASS", String.class))
+                    .personality(record.get("PERSONALITY", String.class))
+                    .backstory(record.get("BACKSTORY", String.class))
+                    .loyalty(record.get("LOYALTY", Integer.class))
+                    .strength(record.get("STRENGTH", Integer.class))
+                    .intelligence(record.get("INTELLIGENCE", Integer.class))
+                    .agility(record.get("AGILITY", Integer.class))
+                    .constitution(record.get("CONSTITUTION", Integer.class))
+                    .charisma(record.get("CHARISMA", Integer.class))
+                    .currentHealth(record.get("CURRENT_HEALTH", Integer.class))
+                    .maxHealth(record.get("MAX_HEALTH", Integer.class))
+                    .currentMana(record.get("CURRENT_MANA", Integer.class))
+                    .maxMana(record.get("MAX_MANA", Integer.class))
+                    .armorBonus(record.get("ARMOR_BONUS", Integer.class))
+                    .weaponBonus(record.get("WEAPON_BONUS", Integer.class))
                     .build();
             members.add(member);
         }
@@ -478,25 +478,25 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
         List<NPC> npcs = new ArrayList<>();
         for (Record record : records) {
             NPC npc = NPC.builder()
-                    .id(record.get(field("npc_id", String.class)))
-                    .name(record.get(field("name", String.class)))
-                    .role(record.get(field("role", String.class)))
-                    .location(record.get(field("location", String.class)))
-                    .agenda(record.get(field("agenda", String.class)))
-                    .personality(record.get(field("personality", String.class)))
-                    .isHostile(record.get(field("is_hostile", Boolean.class)))
-                    .isQuestGiver(record.get(field("is_quest_giver", Boolean.class)))
-                    .strength(record.get(field("strength", Integer.class)))
-                    .intelligence(record.get(field("intelligence", Integer.class)))
-                    .agility(record.get(field("agility", Integer.class)))
-                    .constitution(record.get(field("constitution", Integer.class)))
-                    .charisma(record.get(field("charisma", Integer.class)))
-                    .currentHealth(record.get(field("current_health", Integer.class)))
-                    .maxHealth(record.get(field("max_health", Integer.class)))
-                    .currentMana(record.get(field("current_mana", Integer.class)))
-                    .maxMana(record.get(field("max_mana", Integer.class)))
-                    .armorBonus(record.get(field("armor_bonus", Integer.class)))
-                    .weaponBonus(record.get(field("weapon_bonus", Integer.class)))
+                    .id(record.get("NPC_ID", String.class))
+                    .name(record.get("NAME", String.class))
+                    .role(record.get("ROLE", String.class))
+                    .location(record.get("LOCATION", String.class))
+                    .agenda(record.get("AGENDA", String.class))
+                    .personality(record.get("PERSONALITY", String.class))
+                    .isHostile(record.get("IS_HOSTILE", Boolean.class))
+                    .isQuestGiver(record.get("IS_QUEST_GIVER", Boolean.class))
+                    .strength(record.get("STRENGTH", Integer.class))
+                    .intelligence(record.get("INTELLIGENCE", Integer.class))
+                    .agility(record.get("AGILITY", Integer.class))
+                    .constitution(record.get("CONSTITUTION", Integer.class))
+                    .charisma(record.get("CHARISMA", Integer.class))
+                    .currentHealth(record.get("CURRENT_HEALTH", Integer.class))
+                    .maxHealth(record.get("MAX_HEALTH", Integer.class))
+                    .currentMana(record.get("CURRENT_MANA", Integer.class))
+                    .maxMana(record.get("MAX_MANA", Integer.class))
+                    .armorBonus(record.get("ARMOR_BONUS", Integer.class))
+                    .weaponBonus(record.get("WEAPON_BONUS", Integer.class))
                     .build();
             npcs.add(npc);
         }
@@ -527,13 +527,13 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
         List<Quest> quests = new ArrayList<>();
         for (Record record : records) {
             Quest quest = Quest.builder()
-                    .id(record.get(field("quest_id", String.class)))
-                    .title(record.get(field("title", String.class)))
-                    .description(record.get(field("description", String.class)))
-                    .givenBy(record.get(field("given_by", String.class)))
-                    .status(Quest.QuestStatus.valueOf(record.get(field("status", String.class))))
-                    .isMainQuest(record.get(field("is_main_quest", Boolean.class)))
-                    .experienceReward(record.get(field("experience_reward", Integer.class)))
+                    .id(record.get("QUEST_ID", String.class))
+                    .title(record.get("TITLE", String.class))
+                    .description(record.get("DESCRIPTION", String.class))
+                    .givenBy(record.get("GIVEN_BY", String.class))
+                    .status(Quest.QuestStatus.valueOf(record.get("STATUS", String.class)))
+                    .isMainQuest(record.get("IS_MAIN_QUEST", Boolean.class))
+                    .experienceReward(record.get("EXPERIENCE_REWARD", Integer.class))
                     .build();
             quests.add(quest);
         }
@@ -556,7 +556,7 @@ public class GamePersistenceServiceImpl implements GamePersistenceService {
 
         List<String> history = new ArrayList<>();
         for (Record record : records) {
-            history.add(record.get(field("event_text", String.class)));
+            history.add(record.get("EVENT_TEXT", String.class));
         }
         return history;
     }
