@@ -93,7 +93,8 @@ public class GameView extends VerticalLayout {
         // Story/output area
         storyArea = new TextArea("Story");
         storyArea.setWidthFull();
-        storyArea.setHeight("500px");
+        storyArea.setMinHeight("200px");
+        storyArea.getStyle().set("flex-grow", "1");
         storyArea.setReadOnly(true);
         storyArea.setValue("Welcome to AI RPG Vibe!\n\nClick 'New Game' to start your adventure.");
         
@@ -147,7 +148,8 @@ public class GameView extends VerticalLayout {
         HorizontalLayout buttonRow = new HorizontalLayout(newGameButton, saveGameButton, loadGameButton);
         buttonRow.setSpacing(true);
 
-        mainContent.add(storyArea, actionDropdown, inputLayout, buttonRow);
+        // Place control buttons at the top so they are immediately visible
+        mainContent.add(buttonRow, storyArea, actionDropdown, inputLayout);
         
         // Right sidebar (stats, team, quests)
         VerticalLayout sidebar = new VerticalLayout();
